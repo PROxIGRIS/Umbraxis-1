@@ -1,12 +1,23 @@
 // src/lib/adminApi.ts
-// Admin API utilities that include session token authentication
+// Stable Admin API utilities with persistent session (localStorage)
+// No random logout, no "invalid session" spam.
 
 const SESSION_KEY = 'admin_session_token';
-const SUPABASE_URL = 'https://jwbkqmefkhxayquvotzn.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp3YmtxbWVma2h4YXlxdXZvdHpuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUyMDUxNzcsImV4cCI6MjA4MDc4MTE3N30.qQVx-qYKtfZ4Anj8lCrRYoztrfFeWD9fTHXvc0dU150';
+const SUPABASE_URL = 'https://awrrsplzkonpzzzbrifz.supabase.co"';
+const SUPABASE_ANON_KEY =
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp3YmtxbWVma2h4YXlxdXZvdHpuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUyMDUxNzcsImV4cCI6MjA4MDc4MTE3N30.qQVx-qYKtfZ4Anj8lCrRYoztrfFeWD9fTHXvc0dU150';
 
+// Persist session across refresh, tabs, browser close
 function getSessionToken(): string | null {
-  return sessionStorage.getItem(SESSION_KEY);
+  return localStorage.getItem(SESSION_KEY);
+}
+
+export function setAdminSession(token: string) {
+  localStorage.setItem(SESSION_KEY, token);
+}
+
+export function clearAdminSession() {
+  localStorage.removeItem(SESSION_KEY);
 }
 
 export interface AdminApiResponse<T = any> {
@@ -16,22 +27,50 @@ export interface AdminApiResponse<T = any> {
 }
 
 /**
- * Invoke an admin edge function with automatic session token authentication
+ * Core admin API request handler
+ */
+async function adminRequest(endpoint: string, body: Record<string, any>) {
+  const sessionToken = getSessionToken();
+
+  if (!sessionToken) {
+    return { success: false, error: 'No admin session. Please login.' };
+  }
+
+  try {
+    const response = await fetch(${SUPABASE_URL}/functions/v1/${endpoint}, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': Bearer ${SUPABASE_ANON_KEY},
+        'x-admin-session': sessionToken, // persistent across reloads
+      },
+      body: JSON.stringify(body),
+    });
+
+    const data = await response.json();
+
+    // IMPORTANT:
+    // We NEVER auto-logout unless user manually clears session.
+    // Errors are returned to UI, not forced logout.
+
+    if (!response.ok) {
+      return { success: false, error: data.error || 'Request failed' };
+    }
+
+    return data;
+  } catch (error: any) {
+    return { success: false, error: error.message || 'Network error' };
+  }
+}
+
+/**
+ * Admin product actions
  */
 export async function invokeAdminFunction<T = any>(
   functionName: string,
   body: Record<string, any> = {}
 ): Promise<AdminApiResponse<T>> {
-  const sessionToken = getSessionToken();
-  
-  if (!sessionToken) {
-    return { success: false, error: 'No admin session. Please login.' };
-  }
-
-  // Map legacy function names to unified admin-products endpoint with actions
-  let actualEndpoint = functionName;
-  let requestBody = body;
-  
+  // Map legacy function names to unified endpoint
   const actionMap: Record<string, string> = {
     'admin-upsert-product': 'upsert',
     'admin-delete-product': 'delete',
@@ -39,86 +78,57 @@ export async function invokeAdminFunction<T = any>(
     'admin-bulk-delete-products': 'bulk-delete',
     'admin-csv-import': 'csv-import',
   };
-  
+
+  let endpoint = functionName;
+  let requestBody = body;
+
   if (actionMap[functionName]) {
-    actualEndpoint = 'admin-products';
+    endpoint = 'admin-products';
     requestBody = { action: actionMap[functionName], ...body };
   }
 
-  try {
-    const response = await fetch(`${SUPABASE_URL}/functions/v1/${actualEndpoint}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-        'x-admin-session': sessionToken,
-      },
-      body: JSON.stringify(requestBody),
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      // Handle session errors specifically
-      if (response.status === 401 || response.status === 403) {
-        // Clear invalid session
-        sessionStorage.removeItem(SESSION_KEY);
-        return { 
-          success: false, 
-          error: data.error || 'Session expired. Please login again.' 
-        };
-      }
-      return { success: false, error: data.error || 'Request failed' };
-    }
-
-    return data;
-  } catch (error: any) {
-    console.error(`Admin function ${functionName} error:`, error);
-    return { success: false, error: error.message || 'Network error' };
-  }
+  return adminRequest(endpoint, requestBody);
 }
 
 /**
- * Upload an image through the admin edge function
+ * Upload Image (stable session)
  */
-export async function uploadAdminImage(file: File): Promise<AdminApiResponse<{ url: string }>> {
+export async function uploadAdminImage(
+  file: File
+): Promise<AdminApiResponse<{ url: string }>> {
   const sessionToken = getSessionToken();
-  
   if (!sessionToken) {
     return { success: false, error: 'No admin session. Please login.' };
   }
 
   try {
-    // Convert file to base64
     const base64 = await fileToBase64(file);
-    
-    const response = await fetch(`${SUPABASE_URL}/functions/v1/admin-upload-image`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-        'x-admin-session': sessionToken,
-      },
-      body: JSON.stringify({
-        fileName: file.name,
-        fileType: file.type,
-        fileData: base64,
-      }),
-    });
+
+    const response = await fetch(
+      ${SUPABASE_URL}/functions/v1/admin-upload-image,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': Bearer ${SUPABASE_ANON_KEY},
+          'x-admin-session': sessionToken,
+        },
+        body: JSON.stringify({
+          fileName: file.name,
+          fileType: file.type,
+          fileData: base64,
+        }),
+      }
+    );
 
     const data = await response.json();
 
     if (!response.ok) {
-      if (response.status === 401 || response.status === 403) {
-        sessionStorage.removeItem(SESSION_KEY);
-        return { success: false, error: 'Session expired. Please login again.' };
-      }
       return { success: false, error: data.error || 'Upload failed' };
     }
 
     return data;
   } catch (error: any) {
-    console.error('Image upload error:', error);
     return { success: false, error: error.message || 'Upload failed' };
   }
 }
@@ -128,8 +138,7 @@ function fileToBase64(file: File): Promise<string> {
     const reader = new FileReader();
     reader.onload = () => {
       const result = reader.result as string;
-      // Remove data URL prefix to get just base64
-      const base64 = result.split(',')[1];
+      const base64 = result.split(',')[1]; // strip metadata
       resolve(base64);
     };
     reader.onerror = reject;

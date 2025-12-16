@@ -1,0 +1,10 @@
+project_id = "jwbkqmefkhxayquvotzn"
+
+[functions.razorpay]
+verify_jwt = false
+
+[functions.notify-telegram]
+verify_jwt = false
+
+[functions.generate-invoice]
+verify_jwt = false

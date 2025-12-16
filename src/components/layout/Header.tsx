@@ -39,10 +39,10 @@ export function Header() {
           </motion.div>
           <div className="hidden sm:flex flex-col">
             <span className="text-lg font-display font-bold leading-none">
-              Kirana<span className="text-primary">Store</span>
+              MKV<span className="text-primary">Store</span>
             </span>
             <span className="text-[10px] text-muted-foreground font-medium tracking-wide">
-              FRESH • FAST • LOCAL
+              AFFORDABLE • PREMIUM • LOCAL
             </span>
           </div>
         </Link>

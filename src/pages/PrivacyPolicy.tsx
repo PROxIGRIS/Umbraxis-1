@@ -15,11 +15,11 @@ import {
   Mail,
   Clock,
   Globe2,
+  Tag,
 } from "lucide-react";
 
 /**
  * Minimal, small Lottie placeholder object.
- * Replace with a refined Lottie file if you have one — keep file size small.
  */
 const smallShieldLottie = {
   v: "5.7.4",
@@ -55,7 +55,8 @@ const smallShieldLottie = {
             },
             {
               ty: "fl",
-              c: { a: 0, k: [0.06, 0.48, 0.95, 1] },
+              // Adjusted Lottie color to amber-ish (approx [1, 0.7, 0.2, 1]) for better fit
+              c: { a: 0, k: [0.95, 0.65, 0.1, 1] }, 
               o: { a: 0, k: 100 },
             },
           ],
@@ -70,56 +71,56 @@ const SECTIONS = [
     icon: Database,
     title: "Information we collect",
     bullets: [
-      "Name, phone, delivery address, and order records.",
-      "Device and usage information to keep the site reliable.",
-      "Payment references and metadata from payment gateways (we never store raw card data).",
-      "Optional notes like delivery instructions.",
+      "Name, phone, shipping address, and order history for fulfillment.",
+      "Device and usage information to ensure site reliability and performance.",
+      "Payment method references and transaction metadata (we do not store raw credit card details).",
+      "Optional data like sizing preferences or special delivery instructions.",
     ],
   },
   {
     icon: Lock,
     title: "How we use it",
     bullets: [
-      "To accept, prepare and deliver your orders.",
-      "To confirm payments, send receipts and updates.",
-      "To detect fraud and protect customers and shops.",
-      "To improve the storefront and fix issues.",
+      "To process, pack, and ship your apparel and home goods orders.",
+      "To confirm transactions, issue receipts, and send timely updates.",
+      "For security purposes, including fraud detection and account protection.",
+      "To personalize your shopping experience and improve our online store features.",
     ],
   },
   {
     icon: Shield,
-    title: "Security",
+    title: "Security Measures",
     bullets: [
-      "HTTPS/TLS for all traffic.",
-      "Role-based access: staff see only what’s needed.",
-      "Encrypted backups and routine integrity checks.",
+      "HTTPS/TLS encryption secures all data transmission across the site.",
+      "Strict role-based access control limits staff viewing to necessary information.",
+      "Regularly encrypted backups and system integrity checks are performed.",
     ],
   },
   {
     icon: Eye,
-    title: "Sharing & disclosure",
+    title: "Sharing & Disclosure",
     bullets: [
-      "We do not sell your personal information.",
-      "Delivery partners and payment providers get only the necessary details.",
-      "We may disclose data when legally required.",
+      "We never sell your personal information to third parties.",
+      "Data is shared minimally with shipping carriers and payment processors to complete your order.",
+      "We may disclose data only when compelled by valid legal processes.",
     ],
   },
   {
     icon: FileText,
-    title: "Your rights",
+    title: "Your Privacy Rights",
     bullets: [
-      "Request a copy of your data.",
-      "Ask for corrections or deletion (subject to legal requirements).",
-      "Opt out of marketing messages.",
+      "You have the right to request a copy of all personal data we hold about you.",
+      "You can ask us to correct or delete your data (subject to legal retention requirements).",
+      "You may opt out of promotional emails and marketing communications at any time.",
     ],
   },
   {
     icon: CheckCircle2,
-    title: "Cookies & analytics",
+    title: "Cookies & Site Analytics",
     bullets: [
-      "Essential cookies for cart and sessions.",
-      "Anonymous analytics to improve reliability.",
-      "Browser controls allow cookie clearing and blocking.",
+      "Essential cookies are used solely for session management and maintaining your shopping cart.",
+      "Anonymous, aggregated analytics help us understand usage patterns and site performance.",
+      "Your browser controls provide tools to manage, clear, or block cookies.",
     ],
   },
 ];
@@ -128,224 +129,228 @@ export default function PrivacyPolicy() {
   const [mode, setMode] = useState<"human" | "legal">("human");
   const lastUpdated = useMemo(() => "January 2025", []);
 
+  // Set the background and container colors to match the theme
   return (
     <Layout>
-      <div className="container py-8 md:py-14 px-4">
-        {/* Top hero */}
-        <div className="max-w-6xl mx-auto">
-          <div className="bg-background/60 border border-border rounded-2xl p-5 md:p-8 lg:p-10 grid gap-6 md:grid-cols-3 items-center">
-            {/* Left: Title + description */}
-            <div className="md:col-span-2">
-              <div className="flex items-start gap-3">
-                <div className="rounded-lg bg-primary/10 p-2 flex items-center justify-center shrink-0">
-                  <Shield className="w-6 h-6 text-primary" />
+      <div className="bg-zinc-50 dark:bg-zinc-950/70 min-h-screen">
+        <div className="container py-10 md:py-16 px-4">
+          {/* Top hero */}
+          <div className="max-w-6xl mx-auto">
+            <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-5 md:p-8 lg:p-10 grid gap-6 md:grid-cols-3 items-center shadow-xl">
+              {/* Left: Title + description */}
+              <div className="md:col-span-2">
+                <div className="flex items-start gap-4">
+                  <div className="rounded-xl bg-amber-500/10 p-3 flex items-center justify-center shrink-0 border border-amber-500/20">
+                    <Shield className="w-6 h-6 text-amber-500" />
+                  </div>
+                  <div>
+                    <h1 className="text-3xl md:text-4xl font-display font-bold leading-tight text-zinc-900 dark:text-white">
+                      MKV Essentials Privacy Policy
+                    </h1>
+                    <p className="text-md text-zinc-500 dark:text-zinc-400 mt-2 max-w-lg">
+                      Your privacy is paramount. We only collect the necessary data to process payments and deliver your items efficiently.
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <h1 className="text-2xl md:text-3xl font-semibold leading-tight">
-                    Privacy Policy
-                  </h1>
-                  <p className="text-sm text-muted-foreground mt-1 max-w-lg">
-                    We collect only what’s necessary to run the store, process payments, and deliver orders.
-                    This page explains what we keep, why we keep it, and how you can control it.
-                  </p>
+
+                <div className="mt-6 flex flex-wrap gap-2 items-center">
+                  <div className="inline-flex rounded-full border border-zinc-300 dark:border-zinc-700 overflow-hidden shadow-sm">
+                    {/* Toggle Button - Human Readable (Active: Amber) */}
+                    <button
+                      aria-pressed={mode === "human"}
+                      onClick={() => setMode("human")}
+                      className={`px-4 py-2 text-sm font-semibold transition-colors ${
+                        mode === "human" 
+                          ? "bg-amber-500 text-zinc-900 hover:bg-amber-400" 
+                          : "bg-transparent text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800"
+                      }`}
+                    >
+                      Human Summary
+                    </button>
+                    {/* Toggle Button - Legal Grade (Active: Dark Zinc) */}
+                    <button
+                      aria-pressed={mode === "legal"}
+                      onClick={() => setMode("legal")}
+                      className={`px-4 py-2 text-sm font-semibold transition-colors ${
+                        mode === "legal" 
+                          ? "bg-zinc-900 text-white hover:bg-zinc-800 dark:bg-zinc-700 dark:hover:bg-zinc-600" 
+                          : "bg-transparent text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800"
+                      }`}
+                    >
+                      Legal Policy
+                    </button>
+                  </div>
+
+                  <div className="ml-4 text-sm text-zinc-500 dark:text-zinc-400 flex items-center gap-3">
+                    <Clock className="w-4 h-4 text-indigo-500" />
+                    <span>Last updated: {lastUpdated}</span>
+                  </div>
                 </div>
               </div>
 
-              <div className="mt-4 flex flex-wrap gap-2 items-center">
-                <div className="inline-flex rounded-full border border-border/60 overflow-hidden">
-                  <button
-                    aria-pressed={mode === "human"}
-                    onClick={() => setMode("human")}
-                    className={`px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary ${
-                      mode === "human" ? "bg-primary text-primary-foreground" : "bg-transparent text-muted-foreground"
-                    }`}
-                  >
-                    Human-readable
-                  </button>
-                  <button
-                    aria-pressed={mode === "legal"}
-                    onClick={() => setMode("legal")}
-                    className={`px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary ${
-                      mode === "legal" ? "bg-secondary text-foreground" : "bg-transparent text-muted-foreground"
-                    }`}
-                  >
-                    Legal-grade
-                  </button>
-                </div>
+              {/* Right: Trust card with Lottie */}
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.1 }}
+                className="w-full md:w-auto mt-6 md:mt-0"
+              >
+                <div className="flex items-center gap-4 md:flex-col md:items-stretch">
+                  <div className="flex-1 bg-zinc-50 dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 rounded-xl p-4 flex items-center gap-3 shadow-inner">
+                    {/* Lottie small */}
+                    <div className="w-16 h-16">
+                      <Lottie
+                        animationData={smallShieldLottie}
+                        loop
+                        style={{ width: "100%", height: "100%" }}
+                      />
+                    </div>
 
-                <div className="ml-2 text-xs text-muted-foreground flex items-center gap-2">
-                  <Clock className="w-3 h-3" />
-                  <span>Last updated: {lastUpdated}</span>
-                  <span className="mx-2">•</span>
-                  <Globe2 className="w-3 h-3" />
-                  <span>Applies globally</span>
+                    <div>
+                      <p className="text-xs text-zinc-500 dark:text-zinc-400">Trust snapshot</p>
+                      <p className="text-base font-semibold mt-1 text-zinc-900 dark:text-white">Encrypted & Audited</p>
+                    </div>
+                  </div>
+
+                  <div className="bg-zinc-50 dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 rounded-xl p-3 text-xs text-zinc-500 dark:text-zinc-400 md:w-full">
+                    <div className="flex items-center justify-between font-medium">
+                      <div className="text-[11px] uppercase tracking-wider">Data Handling</div>
+                      <div className="text-xs text-amber-500 font-semibold">Protected</div>
+                    </div>
+                    <div className="mt-2 flex flex-wrap gap-1">
+                      <span className="px-2 py-1 rounded-full bg-zinc-100 dark:bg-zinc-700 text-[11px] text-zinc-700 dark:text-zinc-300">TLS 256-bit</span>
+                      <span className="px-2 py-1 rounded-full bg-zinc-100 dark:bg-zinc-700 text-[11px] text-zinc-700 dark:text-zinc-300">Minimization</span>
+                      <span className="px-2 py-1 rounded-full bg-zinc-100 dark:bg-zinc-700 text-[11px] text-zinc-700 dark:text-zinc-300">No Raw PCI</span>
+                    </div>
+                    <div className="mt-3 flex items-center justify-between">
+                      <div className="text-xs flex items-center gap-2 text-zinc-700 dark:text-zinc-300">
+                        <Mail className="w-3 h-3 text-indigo-500" />
+                        Privacy Support
+                      </div>
+                      <a href="/contact" className="text-xs text-amber-500 font-semibold hover:underline">Contact Now</a>
+                    </div>
+                  </div>
                 </div>
-              </div>
+              </motion.div>
             </div>
 
-            {/* Right: Trust card with Lottie */}
-            <motion.div
-              initial={{ opacity: 0, y: 6 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.45 }}
-              className="w-full md:w-auto"
-            >
-              <div className="flex items-center gap-4 md:flex-col md:items-stretch">
-                <div className="flex-1 bg-background/70 border border-border rounded-xl p-3 flex items-center gap-3">
-                  {/* Lottie small */}
-                  <div className="w-14 h-14 md:w-20 md:h-20">
-                    <Lottie
-                      animationData={smallShieldLottie}
-                      loop
-                      style={{ width: "100%", height: "100%" }}
-                    />
-                  </div>
-
-                  <div>
-                    <p className="text-xs text-muted-foreground">Security snapshot</p>
-                    <p className="text-sm font-semibold mt-1">TLS + Role-based access</p>
-                  </div>
-                </div>
-
-                <div className="bg-background/60 border border-border rounded-xl p-3 text-xs text-muted-foreground md:w-44">
-                  <div className="flex items-center justify-between">
-                    <div className="text-[11px]">Backups</div>
-                    <div className="text-xs text-primary">Active</div>
-                  </div>
-                  <div className="mt-2 flex flex-wrap gap-1">
-                    <span className="px-2 py-1 rounded bg-secondary/5 border border-border/50 text-[11px]">TLS</span>
-                    <span className="px-2 py-1 rounded bg-secondary/5 border border-border/50 text-[11px]">Minimal access</span>
-                    <span className="px-2 py-1 rounded bg-secondary/5 border border-border/50 text-[11px]">Audit logs</span>
-                  </div>
-                  <div className="mt-3 flex items-center justify-between">
-                    <div className="text-xs flex items-center gap-2">
-                      <Mail className="w-3 h-3" />
-                      Privacy support
-                    </div>
-                    <a href="/contact" className="text-xs text-primary hover:underline">Contact</a>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-          </div>
-
-          {/* Content area */}
-          <div className="mt-8 grid gap-8">
-            {mode === "human" ? (
-              <div className="grid gap-6">
-                {SECTIONS.map((s, idx) => {
-                  const Icon = s.icon;
-                  return (
-                    <article
-                      key={s.title}
-                      className="flex flex-col md:flex-row gap-4 md:gap-6 bg-background/60 border border-border rounded-lg p-4 md:p-6"
-                    >
-                      <div className="flex-shrink-0">
-                        <div className="w-12 h-12 md:w-14 md:h-14 rounded-lg bg-primary/10 flex items-center justify-center border border-border">
-                          <Icon className="w-6 h-6 text-primary" />
+            {/* Content area */}
+            <div className="mt-10 grid gap-8">
+              {mode === "human" ? (
+                <div className="grid gap-6">
+                  {SECTIONS.map((s, idx) => {
+                    const Icon = s.icon;
+                    return (
+                      <motion.article
+                        key={s.title}
+                        initial={{ opacity: 0, x: -10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.5, delay: idx * 0.1 }}
+                        className="flex flex-col md:flex-row gap-4 md:gap-8 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-5 md:p-8 shadow-md"
+                      >
+                        <div className="flex-shrink-0">
+                          <div className="w-14 h-14 rounded-xl bg-amber-500/10 flex items-center justify-center border border-amber-500/20 shadow-inner">
+                            <Icon className="w-6 h-6 text-amber-500" />
+                          </div>
                         </div>
-                      </div>
 
-                      <div>
-                        <h3 className="text-lg md:text-xl font-semibold mb-2">{s.title}</h3>
-                        <ul className="space-y-2 text-sm text-muted-foreground">
-                          {s.bullets.map((b, i) => (
-                            <li key={i} className="flex gap-3 items-start">
-                              <CheckCircle2 className="w-4 h-4 mt-1 text-primary flex-shrink-0" />
-                              <p className="leading-relaxed">{b}</p>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    </article>
-                  );
-                })}
+                        <div>
+                          <h3 className="text-xl md:text-2xl font-semibold mb-3 text-zinc-900 dark:text-white">{s.title}</h3>
+                          <ul className="space-y-3 text-base text-zinc-600 dark:text-zinc-300">
+                            {s.bullets.map((b, i) => (
+                              <li key={i} className="flex gap-3 items-start">
+                                <CheckCircle2 className="w-5 h-5 mt-0.5 text-amber-500 flex-shrink-0" />
+                                <p className="leading-relaxed">{b}</p>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      </motion.article>
+                    );
+                  })}
 
-                <div className="bg-background/60 border border-border rounded-lg p-4 md:p-6">
-                  <h4 className="font-semibold mb-2">Data retention</h4>
-                  <p className="text-sm text-muted-foreground">
-                    We retain order & transaction records as required to provide service, comply with tax or legal obligations,
-                    and resolve disputes. On valid deletion requests we remove personal data unless retention is required by law.
+                  <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-5 md:p-8 shadow-md">
+                    <h4 className="font-semibold text-xl mb-3 text-zinc-900 dark:text-white">Data Retention Policy</h4>
+                    <p className="text-base text-zinc-600 dark:text-zinc-300 leading-relaxed">
+                      We retain essential order, transaction, and shipping records for as long as necessary to provide service, comply with legal and tax obligations,
+                      and resolve disputes. Upon receiving a valid and verified deletion request, we remove personal data unless mandatory retention is required by applicable law.
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                <div className="prose dark:prose-invert max-w-none bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-5 md:p-8 overflow-auto shadow-md">
+                  {/* Legal-grade text – scrollable on mobile */}
+                  <h2 className="text-zinc-900 dark:text-white font-bold mb-4">Full Legal Policy</h2>
+                  <p className="text-zinc-600 dark:text-zinc-300">
+                    This detailed policy serves as the official legal agreement governing your data. It supersedes the human-readable summary and is intended for legal and compliance purposes.
+                  </p>
+
+                  <h3 className="text-zinc-900 dark:text-white mt-8 mb-2">1. Scope of Application</h3>
+                  <p className="text-zinc-600 dark:text-zinc-300">
+                    These policies govern the processing of personal information by MKV Essentials (the "Store Operator") in connection with the operation of the e-commerce service and related business activities. The Store Operator is the data controller.
+                  </p>
+
+                  <h3 className="text-zinc-900 dark:text-white mt-8 mb-2">2. Categories of Personal Data</h3>
+                  <ul className="text-zinc-600 dark:text-zinc-300">
+                    <li>**Identity and Contact Data:** Name, phone number, email address, and physical shipping address.</li>
+                    <li>**Commercial Data:** Products purchased, order value, transaction history, and fulfillment records.</li>
+                    <li>**Technical Data:** IP address, browser type, device identifiers, and website activity logs.</li>
+                    <li>**Financial Data:** Encrypted payment token and metadata (No raw PCI data is stored).</li>
+                  </ul>
+
+                  <h3 className="text-zinc-900 dark:text-white mt-8 mb-2">3. Legal Bases for Processing</h3>
+                  <p className="text-zinc-600 dark:text-zinc-300">
+                    Data processing is primarily based on contract performance (to fulfill your order), compliance with statutory legal obligations (tax and audit), and legitimate interests (security, service improvement, and fraud prevention).
+                  </p>
+
+                  <h3 className="text-zinc-900 dark:text-white mt-8 mb-2">4. Recipients and Data Transfers</h3>
+                  <p className="text-zinc-600 dark:text-zinc-300">
+                    Data is disclosed only to essential third-party service providers, including payment processors, hosting partners, and logistics companies, strictly under contractual data processing agreements. Where data is transferred internationally, appropriate safeguards are implemented.
+                  </p>
+
+                  <h3 className="text-zinc-900 dark:text-white mt-8 mb-2">5. Data Subject Rights</h3>
+                  <p className="text-zinc-600 dark:text-zinc-300">
+                    Individuals may exercise rights of access, correction, erasure (Right to be Forgotten), restriction of processing, and data portability in accordance with applicable data protection laws.
+                  </p>
+
+                  <h3 className="text-zinc-900 dark:text-white mt-8 mb-2">6. Security and Safeguards</h3>
+                  <p className="text-zinc-600 dark:text-zinc-300">
+                    We maintain robust technical and organizational security measures, including strong encryption (TLS), secure authentication, regular penetration testing, and disaster recovery planning, to protect data against unauthorized access or disclosure.
+                  </p>
+
+                  <h3 className="text-zinc-900 dark:text-white mt-8 mb-2">7. Policy Amendments</h3>
+                  <p className="text-zinc-600 dark:text-zinc-300">
+                    This policy may be amended periodically. All changes will be posted on this page with an updated “Last updated” date. Continued use of our services implies acceptance of any revised policy.
+                  </p>
+
+                  <h3 className="text-zinc-900 dark:text-white mt-8 mb-2">Contact Information</h3>
+                  <p className="text-zinc-600 dark:text-zinc-300">
+                    For all privacy-related inquiries, requests, or concerns, please contact our support team. We are committed to responding promptly and resolving issues efficiently.
                   </p>
                 </div>
-              </div>
-            ) : (
-              <div className="prose prose-invert max-w-none bg-background/60 border border-border rounded-lg p-4 md:p-6 overflow-auto">
-                {/* Legal-grade text – scrollable on mobile */}
-                <h2>Full legal policy</h2>
-                <p>
-                  This legal-grade section provides precise language for compliance. It complements the human-readable
-                  summary and is intended to be used for contractual and legal purposes.
-                </p>
+              )}
 
-                <h3>1. Scope</h3>
-                <p>
-                  These policies govern processing of personal information by the store operator in connection with the
-                  store service and related activities. The store operator is the data controller.
-                </p>
-
-                <h3>2. Categories of personal data</h3>
-                <ul>
-                  <li>Identification and contact data (name, phone, address).</li>
-                  <li>Order and transaction data (items ordered, prices, totals, payment references).</li>
-                  <li>Technical data (IP address, device metadata, logs).</li>
-                </ul>
-
-                <h3>3. Legal bases</h3>
-                <p>
-                  Personal data is processed for contract performance (order fulfilment), compliance with legal
-                  obligations, and legitimate interests such as fraud prevention and service improvement.
-                </p>
-
-                <h3>4. Recipients & transfers</h3>
-                <p>
-                  Selected third-party providers (payment processors, hosting, delivery partners) may process data under contract.
-                  Where transfers outside the country occur, we ensure appropriate safeguards are in place.
-                </p>
-
-                <h3>5. Data subject rights</h3>
-                <p>
-                  Data subjects may request access, correction, erasure, restriction, and portability to the extent provided by law.
-                  Requests should be directed to the store owner via the contact page.
-                </p>
-
-                <h3>6. Security measures</h3>
-                <p>
-                  Appropriate technical and organizational measures are in place including TLS encryption, role-based access control,
-                  periodic backups, and logging for forensic purposes.
-                </p>
-
-                <h3>7. Changes</h3>
-                <p>
-                  Updates to this policy will be posted with a revised “Last updated” date. Continued use of the service after updates
-                  constitutes acceptance of the revised policy.
-                </p>
-
-                <h3>Contact</h3>
-                <p>
-                  For requests or questions about privacy contact the store owner. We aim to respond to legitimate requests within reasonable statutory timeframes.
-                </p>
-              </div>
-            )}
-
-            {/* CTA */}
-            <div className="flex flex-col md:flex-row gap-3 items-center justify-center md:justify-between mt-2">
-              <div className="text-sm text-muted-foreground max-w-xl text-center md:text-left">
-                Need a copy of your data or want something corrected? Reach out and we’ll handle it.
-              </div>
-              <div className="flex gap-3">
-                <a
-                  href="/contact"
-                  className="inline-flex items-center px-4 py-2 rounded-md border border-border text-sm bg-background/80 hover:bg-background focus:outline-none focus:ring-2 focus:ring-primary"
-                >
-                  Contact support
-                </a>
-                <a
-                  href="/terms"
-                  className="inline-flex items-center px-4 py-2 rounded-md text-sm text-primary hover:underline"
-                >
-                  Read Terms of Service
-                </a>
+              {/* CTA */}
+              <div className="flex flex-col md:flex-row gap-4 items-center justify-center md:justify-between mt-6">
+                <div className="text-base text-zinc-600 dark:text-zinc-300 max-w-xl text-center md:text-left">
+                  For any data requests (access, correction, or deletion), please use our dedicated contact form.
+                </div>
+                <div className="flex gap-3">
+                  <a
+                    href="/contact"
+                    className="inline-flex items-center px-6 py-2.5 rounded-full border border-zinc-300 dark:border-zinc-700 text-sm font-semibold bg-white dark:bg-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-700 text-zinc-900 dark:text-white transition-colors"
+                  >
+                    <Mail className="w-4 h-4 mr-2" />
+                    Contact Support
+                  </a>
+                  <a
+                    href="/terms"
+                    className="inline-flex items-center px-6 py-2.5 rounded-full text-sm font-semibold text-amber-500 hover:bg-amber-50 dark:hover:bg-zinc-800 transition-colors"
+                  >
+                    Read Terms of Service
+                    <Tag className="w-4 h-4 ml-2" />
+                  </a>
+                </div>
               </div>
             </div>
           </div>

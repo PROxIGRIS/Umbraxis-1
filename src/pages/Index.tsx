@@ -301,15 +301,16 @@ export default function Index() {
                   </Link>
                 </Button>
                 <Button 
-                  asChild 
-                  size="lg" 
-                  variant="outline" 
-                  className="w-full sm:w-auto rounded-full h-14 px-10 font-semibold border-zinc-700 hover:bg-zinc-800 text-white hover:text-white"
-                >
-                  <Link to="/about">
-                    Our Story
-                  </Link>
-                </Button>
+  asChild 
+  size="lg" 
+  variant="outline" 
+  className="w-full sm:w-auto rounded-full h-14 px-10 font-semibold border-zinc-700 
+             bg-transparent text-black hover:text-black hover:bg-zinc-100"
+>
+  <Link to="/about">
+    Our Story
+  </Link>
+</Button>
               </div>
             </div>
           </motion.div>

@@ -1,11 +1,11 @@
 import { Button } from "@/components/ui/button";
-import { MapPin, Phone, Clock, ExternalLink, ShoppingBag, Home, Package } from "lucide-react";
+import { MapPin, Phone, Clock, ExternalLink, ShoppingBag, Home, Package, Tag, ShieldCheck } from "lucide-react";
 import { motion } from "framer-motion";
 import Lottie from "lottie-react";
 import { Link } from "react-router-dom";
 
 const Footer = () => {
-  // Sparkle animation (lightweight)
+  // Sparkle animation (lightweight) - Color set to a pale amber in the original Lottie data
   const sparkleAnimation = {
     v: "5.7.4",
     fr: 60,
@@ -49,7 +49,8 @@ const Footer = () => {
               },
               {
                 ty: "fl",
-                c: { a: 0, k: [1, 0.9, 0.3, 1] },
+                // This color [1, 0.9, 0.3, 1] is Yellow/Gold in Lottie
+                c: { a: 0, k: [1, 0.9, 0.3, 1] }, 
                 o: { a: 0, k: 100 },
               },
             ],
@@ -63,30 +64,32 @@ const Footer = () => {
   };
 
   return (
-    <footer className="py-20 bg-foreground text-background relative overflow-hidden">
-      {/* Decorative top strip */}
-      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary to-transparent" />
+    // Changed bg-foreground (which was black) to explicit deep zinc/black for consistency
+    <footer className="py-20 bg-zinc-950 text-white relative overflow-hidden">
+      {/* Decorative top strip: Changed green tint to Amber accent */}
+      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-amber-500 to-transparent" />
 
       <div className="container mx-auto px-6 lg:px-16 relative z-10">
         <div className="max-w-7xl mx-auto">
 
-          {/* TOP CTA */}
-          <div className="text-center mb-16 pb-16 border-b border-background/10">
+          {/* TOP CTA - Refocused for Clothing/Essentials */}
+          <div className="text-center mb-16 pb-16 border-b border-white/10">
             <h3 className="text-3xl md:text-4xl font-bold mb-4">
-              Your neighbourhood groceries, elevated
+              Find your next favorite essential.
             </h3>
 
-            <p className="text-background/70 text-lg mb-8 max-w-2xl mx-auto">
-              Fresh items, fast delivery, and a seamlessly modern shopping experience.
+            <p className="text-white/70 text-lg mb-8 max-w-2xl mx-auto">
+              Shop curated winter wear, home textiles, and quality basics for effortless style.
             </p>
 
             <Link to="/products">
               <Button
                 size="lg"
-                className="rounded-full px-8 py-6 bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg hover:shadow-2xl hover:scale-105 transition-all"
+                // Primary button style: Amber background, dark text
+                className="rounded-full px-8 py-6 bg-amber-500 hover:bg-amber-400 text-zinc-900 shadow-xl shadow-amber-500/30 hover:shadow-2xl hover:scale-105 transition-all"
               >
-                <ShoppingBag className="w-5 h-5 mr-2" />
-                Shop Now
+                <Tag className="w-5 h-5 mr-2" />
+                Shop The Collection
               </Button>
             </Link>
           </div>
@@ -96,53 +99,59 @@ const Footer = () => {
 
             {/* Brand */}
             <div className="space-y-4 lg:col-span-2">
-              <h3 className="text-3xl font-bold">KiranaStore</h3>
+              {/* Brand Name Update */}
+              <h3 className="text-3xl font-bold text-amber-500">MKV ESSENTIALS</h3>
 
-              <p className="text-background/70 leading-relaxed max-w-md">
-                Trusted local convenience brought into the modern era. We deliver quality,
-                consistency, and speed — every time.
+              <p className="text-white/70 leading-relaxed max-w-md">
+                Dedicated to quality, comfort, and sustainable value. We provide stylish, reliable essentials for every modern lifestyle.
               </p>
 
               {/* Contact */}
-              <div className="space-y-3 pt-4 text-background/70">
+              <div className="space-y-3 pt-4 text-white/70">
                 <div className="flex items-start gap-3">
-                  <MapPin className="w-5 h-5" />
-                  <span>123 Main Market Road, Mumbai 400001</span>
+                  <MapPin className="w-5 h-5 text-amber-500" />
+                  <span>456 Fashion District, New Delhi 110001</span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <Phone className="w-5 h-5" />
-                  <a href="tel:+919876543210" className="hover:text-background transition">
+                  <Phone className="w-5 h-5 text-amber-500" />
+                  {/* Changed hover color to white */}
+                  <a href="tel:+919876543210" className="hover:text-white transition">
                     +91 98765 43210
                   </a>
                 </div>
                 <div className="flex items-center gap-3">
-                  <Clock className="w-5 h-5" />
-                  <span>7:00 AM to 10:00 PM</span>
+                  <Clock className="w-5 h-5 text-amber-500" />
+                  <span>Mon-Sat: 9:00 AM to 7:00 PM (Online Support)</span>
                 </div>
               </div>
             </div>
 
             {/* Quick Links */}
             <div className="space-y-4">
-              <h4 className="font-bold text-lg">Quick Links</h4>
-              <ul className="space-y-2 text-background/70">
+              <h4 className="font-bold text-xl text-white">Quick Links</h4>
+              <ul className="space-y-2 text-white/70">
                 <li>
-                  <Link to="/" className="hover:text-background transition-colors hover:translate-x-1 inline-block">
+                  {/* Added subtle transition and hover effect */}
+                  <Link to="/" className="hover:text-white transition-colors hover:translate-x-1 inline-block">
+                    <Home className="w-4 h-4 mr-2 inline-block -mt-0.5" />
                     Home
                   </Link>
                 </li>
                 <li>
-                  <Link to="/products" className="hover:text-background transition-colors hover:translate-x-1 inline-block">
-                    Products
+                  <Link to="/products" className="hover:text-white transition-colors hover:translate-x-1 inline-block">
+                    <ShoppingBag className="w-4 h-4 mr-2 inline-block -mt-0.5" />
+                    All Products
                   </Link>
                 </li>
                 <li>
-                  <Link to="/cart" className="hover:text-background transition-colors hover:translate-x-1 inline-block">
-                    Cart
+                  <Link to="/about" className="hover:text-white transition-colors hover:translate-x-1 inline-block">
+                    <ShieldCheck className="w-4 h-4 mr-2 inline-block -mt-0.5" />
+                    About Us
                   </Link>
                 </li>
                 <li>
-                  <Link to="/track-order" className="hover:text-background transition-colors hover:translate-x-1 inline-block">
+                  <Link to="/track-order" className="hover:text-white transition-colors hover:translate-x-1 inline-block">
+                    <Package className="w-4 h-4 mr-2 inline-block -mt-0.5" />
                     Track Order
                   </Link>
                 </li>
@@ -151,23 +160,33 @@ const Footer = () => {
 
             {/* Legal */}
             <div className="space-y-4">
-              <h4 className="font-bold text-lg">Legal</h4>
-              <ul className="space-y-2 text-background/70">
+              <h4 className="font-bold text-xl text-white">Customer Care</h4>
+              <ul className="space-y-2 text-white/70">
                 <li>
-                  <Link to="/privacy" className="hover:text-background transition-colors hover:translate-x-1 inline-block">
+                  <Link to="/returns" className="hover:text-white transition-colors hover:translate-x-1 inline-block">
+                    Shipping & Returns
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/privacy" className="hover:text-white transition-colors hover:translate-x-1 inline-block">
                     Privacy Policy
                   </Link>
                 </li>
                 <li>
-                  <Link to="/terms" className="hover:text-background transition-colors hover:translate-x-1 inline-block">
+                  <Link to="/terms" className="hover:text-white transition-colors hover:translate-x-1 inline-block">
                     Terms of Service
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/contact" className="hover:text-white transition-colors hover:translate-x-1 inline-block">
+                    Contact Support
                   </Link>
                 </li>
               </ul>
             </div>
           </div>
 
-          {/* UMBRAXIS CARD */}
+          {/* UMBRAXIS CARD - Style matched to dark mode */}
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -175,8 +194,9 @@ const Footer = () => {
             transition={{ duration: 0.6 }}
             className="mt-16 mb-12"
           >
-            <div className="relative bg-gradient-to-br from-primary/20 to-primary/5 border-2 border-primary/30 rounded-3xl p-10 overflow-hidden group hover:shadow-2xl hover:shadow-primary/20 transition-all duration-500">
+            <div className="relative bg-zinc-800/50 border-2 border-zinc-700 rounded-3xl p-10 overflow-hidden group hover:shadow-2xl hover:shadow-zinc-700/50 transition-all duration-500">
 
+              {/* Lottie animation area - Sparkles naturally fit amber theme */}
               <div className="absolute top-4 right-4 w-20 h-20 opacity-50">
                 <Lottie animationData={sparkleAnimation} loop />
               </div>
@@ -191,14 +211,14 @@ const Footer = () => {
                   transition={{ delay: 0.2 }}
                   className="text-4xl md:text-5xl font-bold mb-4"
                 >
-                  Crafted by <span className="text-primary">Umbraxis</span>
+                  Crafted by <span className="text-amber-500">Umbraxis</span>
                 </motion.h2>
 
                 <motion.p
                   initial={{ opacity: 0 }}
                   whileInView={{ opacity: 1 }}
                   transition={{ delay: 0.3 }}
-                  className="text-background/70 text-lg mb-6"
+                  className="text-white/70 text-lg mb-6"
                 >
                   Premium digital craftsmanship for modern brands
                 </motion.p>
@@ -209,7 +229,8 @@ const Footer = () => {
                   rel="noopener noreferrer"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-full font-semibold hover:shadow-lg hover:shadow-primary/30 transition-all"
+                  // Button style matching the primary CTA
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-amber-500 text-zinc-900 rounded-full font-semibold hover:shadow-lg hover:shadow-amber-500/30 transition-all"
                 >
                   Visit Umbraxis
                   <ExternalLink className="w-4 h-4" />
@@ -219,16 +240,16 @@ const Footer = () => {
           </motion.div>
 
           {/* BOTTOM STRIP */}
-          <div className="pt-8 border-t border-background/10 flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-background/60 text-sm">
-              © {new Date().getFullYear()} KiranaStore. All rights reserved.
+          <div className="pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4">
+            <p className="text-white/60 text-sm">
+              © {new Date().getFullYear()} MKV Essentials. All rights reserved.
             </p>
 
-            <div className="flex gap-6 text-sm text-background/60">
-              <Link to="/privacy" className="hover:text-background transition-colors">
+            <div className="flex gap-6 text-sm text-white/60">
+              <Link to="/privacy" className="hover:text-white transition-colors">
                 Privacy Policy
               </Link>
-              <Link to="/terms" className="hover:text-background transition-colors">
+              <Link to="/terms" className="hover:text-white transition-colors">
                 Terms of Service
               </Link>
             </div>
@@ -246,10 +267,10 @@ const Footer = () => {
               href="https://umbraxis.vercel.app"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-background/50 hover:text-background text-sm transition-colors inline-flex items-center gap-1 group"
+              className="text-white/50 hover:text-white text-sm transition-colors inline-flex items-center gap-1 group"
             >
               Made with ❤️ by
-              <span className="text-primary font-semibold group-hover:underline">Umbraxis</span>
+              <span className="text-amber-500 font-semibold group-hover:underline">Umbraxis</span>
             </a>
           </motion.div>
         </div>

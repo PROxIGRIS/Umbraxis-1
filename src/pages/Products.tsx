@@ -1,16 +1,22 @@
 import { useState, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Search, X, ChevronDown, Filter, ListOrdered } from 'lucide-react';
+import { Search, X, Filter, ListOrdered } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Layout } from '@/components/layout/Layout';
 import { ProductCard } from '@/components/products/ProductCard';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useProducts } from '@/hooks/useProducts';
 import { useCategories } from '@/hooks/useCategories';
-import { cn } from '@/lib/utils'; // Assuming you have a utility class helper
+import { cn } from '@/lib/utils';
 
 type SortOption = 'default' | 'price-low' | 'price-high' | 'name';
 
@@ -26,30 +32,70 @@ export default function Products() {
   const { data: products = [], isLoading: productsLoading } = useProducts();
   const { data: categories = [], isLoading: categoriesLoading } = useCategories();
 
+  // ------------------------------------------------------
+  // IMAGE SANITIZER (same behavior as ProductDetail)
+  // ------------------------------------------------------
+  const sanitizeImages = (product: any) => {
+    const imgs: string[] = [];
+
+    // Add real images from array
+    if (product.images?.length) {
+      product.images.forEach((img: string) => {
+        if (
+          img &&
+          img.trim() !== "" &&
+          img !== "/placeholder.svg" &&
+          !imgs.includes(img)
+        ) {
+          imgs.push(img);
+        }
+      });
+    }
+
+    // Add main imageUrl if it’s real
+    if (
+      product.imageUrl &&
+      product.imageUrl.trim() !== "" &&
+      product.imageUrl !== "/placeholder.svg" &&
+      !imgs.includes(product.imageUrl)
+    ) {
+      imgs.unshift(product.imageUrl);
+    }
+
+    return imgs.length ? imgs : ["/placeholder.svg"];
+  };
+
+  // ------------------------------------------------------
+  // CATEGORY LOGIC
+  // ------------------------------------------------------
   const selectedCategoryData = useMemo(() => {
-    return selectedCategory ? categories.find(c => c.slug === selectedCategory) : null;
+    return selectedCategory
+      ? categories.find(c => c.slug === selectedCategory)
+      : null;
   }, [selectedCategory, categories]);
 
+  // ------------------------------------------------------
+  // PRODUCT FILTERING
+  // ------------------------------------------------------
   const filteredProducts = useMemo(() => {
     let result = [...products];
 
-    // Filter by search
+    // Search filter
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
-      result = result.filter(
-        p =>
-          p.name.toLowerCase().includes(query) ||
-          p.description.toLowerCase().includes(query) ||
-          p.tags?.some(t => t.toLowerCase().includes(query))
+      result = result.filter(p =>
+        p.name.toLowerCase().includes(query) ||
+        p.description.toLowerCase().includes(query) ||
+        p.tags?.some(t => t.toLowerCase().includes(query))
       );
     }
 
-    // Filter by category
+    // Category filter
     if (selectedCategory && selectedCategoryData) {
       result = result.filter(p => p.categoryId === selectedCategoryData.id);
     }
 
-    // Sort
+    // Sorting
     switch (sortBy) {
       case 'price-low':
         result.sort((a, b) => a.price - b.price);
@@ -60,24 +106,25 @@ export default function Products() {
       case 'name':
         result.sort((a, b) => a.name.localeCompare(b.name));
         break;
-      case 'default':
-        // Default sort (e.g., by ID or order added) - ensure stability if possible
-        // Assuming products come in a natural order if 'default' is selected.
+      default:
         break;
     }
 
-    return result;
+    // Attach sanitized images
+    return result.map(p => ({
+      ...p,
+      allImages: sanitizeImages(p)
+    }));
   }, [searchQuery, selectedCategory, selectedCategoryData, sortBy, products]);
 
   const handleCategoryChange = (value: string) => {
     const slug = value === 'all' ? '' : value;
     setSelectedCategory(slug);
+
     const params = new URLSearchParams(searchParams);
-    if (slug) {
-      params.set('category', slug);
-    } else {
-      params.delete('category');
-    }
+    if (slug) params.set('category', slug);
+    else params.delete('category');
+
     setSearchParams(params);
   };
 
@@ -88,189 +135,152 @@ export default function Products() {
     setSearchParams({});
   };
 
-  const hasActiveFilters = searchQuery || selectedCategory || sortBy !== 'default';
+  const hasActiveFilters =
+    searchQuery || selectedCategory || sortBy !== 'default';
+
   const isLoading = productsLoading || categoriesLoading;
 
+  // Animation variants
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
-      transition: {
-        staggerChildren: 0.05,
-      },
-    },
+      transition: { staggerChildren: 0.04 }
+    }
   };
 
   const itemVariants = {
-    hidden: { y: 20, opacity: 0 },
-    visible: { y: 0, opacity: 1 },
+    hidden: { y: 12, opacity: 0 },
+    visible: { y: 0, opacity: 1 }
   };
 
-
+  // ------------------------------------------------------
+  // UI OUTPUT
+  // ------------------------------------------------------
   return (
     <Layout>
       <div className="bg-zinc-50 dark:bg-zinc-950/70 min-h-screen">
         <div className="container py-10 md:py-16">
-          
-          {/* Header */}
+
+          {/* HEADER */}
           <div className="mb-8 md:mb-12">
-            <h1 className="text-4xl md:text-5xl font-display font-bold mb-2 tracking-tight text-zinc-900 dark:text-white">
-              {selectedCategoryData ? selectedCategoryData.name : 'Shop All Essentials'}
+            <h1 className="text-4xl md:text-5xl font-display font-bold tracking-tight text-zinc-900 dark:text-white mb-2">
+              {selectedCategoryData ? selectedCategoryData.name : "Shop All Essentials"}
             </h1>
             <p className="text-lg text-zinc-500 dark:text-zinc-400">
-              {filteredProducts.length} {filteredProducts.length === 1 ? 'product' : 'products'} available in this collection.
+              {filteredProducts.length} item{filteredProducts.length === 1 ? "" : "s"} found
             </p>
           </div>
 
-          {/* Filter Bar */}
-          <div className="flex flex-col lg:flex-row gap-4 mb-8 p-4 rounded-xl bg-white dark:bg-zinc-900 shadow-lg border border-zinc-200 dark:border-zinc-800">
-            
-            {/* Search Input - Sleek Style */}
+          {/* FILTER BAR */}
+          <div className="flex flex-col lg:flex-row gap-4 mb-8 p-4 rounded-2xl bg-white dark:bg-zinc-900 shadow-xl border border-zinc-200 dark:border-zinc-800">
+
+            {/* SEARCH */}
             <div className="relative flex-1 max-w-lg">
               <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400 dark:text-zinc-500" />
               <Input
                 type="search"
-                placeholder="Search products, keywords, or tags..."
+                placeholder="Search products..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-11 h-12 rounded-full border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 focus-visible:ring-indigo-500/50 text-zinc-900 dark:text-white"
+                className="pl-11 h-12 rounded-full border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-white"
               />
             </div>
 
-            {/* Category & Sort Selects */}
-            <div className="flex flex-wrap gap-3 items-center">
-              
-              {/* Category Select */}
-              <Select value={selectedCategory || 'all'} onValueChange={handleCategoryChange}>
-                <SelectTrigger className="w-full sm:w-[180px] h-12 rounded-full border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 focus-visible:ring-indigo-500/50">
-                  <Filter className="h-4 w-4 mr-2 text-indigo-500" />
-                  <SelectValue placeholder="All Categories" />
-                </SelectTrigger>
-                <SelectContent className="dark:bg-zinc-800 dark:border-zinc-700">
-                  <SelectItem value="all">All Categories</SelectItem>
-                  {categories.map((cat) => (
-                    <SelectItem key={cat.id} value={cat.slug} className="dark:hover:bg-zinc-700">
-                      <span className="mr-2">{cat.icon}</span> {cat.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+            {/* CATEGORY SELECT */}
+            <Select
+              value={selectedCategory || 'all'}
+              onValueChange={handleCategoryChange}
+            >
+              <SelectTrigger className="w-full sm:w-[180px] h-12 rounded-full border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800">
+                <Filter className="h-4 w-4 mr-2 text-indigo-500" />
+                <SelectValue placeholder="Category" />
+              </SelectTrigger>
+              <SelectContent className="dark:bg-zinc-800">
+                <SelectItem value="all">All Categories</SelectItem>
+                {categories.map(cat => (
+                  <SelectItem
+                    key={cat.id}
+                    value={cat.slug}
+                    className="dark:hover:bg-zinc-700"
+                  >
+                    <span>{cat.icon}</span> {cat.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
 
-              {/* Sort Select */}
-              <Select value={sortBy} onValueChange={(v) => setSortBy(v as SortOption)}>
-                <SelectTrigger className="w-full sm:w-[180px] h-12 rounded-full border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 focus-visible:ring-indigo-500/50">
-                  <ListOrdered className="h-4 w-4 mr-2 text-amber-500" />
-                  <SelectValue placeholder="Sort by" />
-                </SelectTrigger>
-                <SelectContent className="dark:bg-zinc-800 dark:border-zinc-700">
-                  <SelectItem value="default">Default</SelectItem>
-                  <SelectItem value="price-low">Price: Low to High</SelectItem>
-                  <SelectItem value="price-high">Price: High to Low</SelectItem>
-                  <SelectItem value="name">Name: A to Z</SelectItem>
-                </SelectContent>
-              </Select>
+            {/* SORT SELECT */}
+            <Select
+              value={sortBy}
+              onValueChange={(v) => setSortBy(v as SortOption)}
+            >
+              <SelectTrigger className="w-full sm:w-[180px] h-12 rounded-full border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800">
+                <ListOrdered className="h-4 w-4 mr-2 text-amber-500" />
+                <SelectValue placeholder="Sort by" />
+              </SelectTrigger>
+              <SelectContent className="dark:bg-zinc-800">
+                <SelectItem value="default">Default</SelectItem>
+                <SelectItem value="price-low">Price: Low to High</SelectItem>
+                <SelectItem value="price-high">Price: High to Low</SelectItem>
+                <SelectItem value="name">Name: A to Z</SelectItem>
+              </SelectContent>
+            </Select>
 
-              {/* Clear Filters Button */}
-              {hasActiveFilters && (
-                <Button 
-                  variant="ghost" 
-                  onClick={clearFilters} 
-                  className="gap-2 h-12 rounded-full text-zinc-500 dark:text-zinc-400 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-zinc-800"
-                >
-                  <X className="h-4 w-4" />
-                  Clear
-                </Button>
-              )}
-            </div>
+            {/* CLEAR FILTERS */}
+            {hasActiveFilters && (
+              <Button
+                variant="ghost"
+                onClick={clearFilters}
+                className="rounded-full h-12 flex gap-2 text-zinc-500 hover:text-red-500"
+              >
+                <X className="h-4 w-4" />
+                Clear
+              </Button>
+            )}
           </div>
 
-          {/* Category Pills (Secondary Filter/Navigation) */}
-          <motion.div 
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="flex flex-wrap gap-3 mb-10"
-          >
-            <Button
-              variant={!selectedCategory ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => handleCategoryChange('all')}
-              className={cn(
-                'rounded-full h-10 px-4 font-semibold transition-all',
-                !selectedCategory 
-                  ? 'bg-zinc-900 text-white hover:bg-zinc-800 dark:bg-amber-500 dark:text-zinc-900 dark:hover:bg-amber-400' 
-                  : 'bg-white border-zinc-300 text-zinc-700 hover:bg-zinc-100 dark:bg-zinc-900 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800'
-              )}
-            >
-              All
-            </Button>
-            {categories.map((cat, i) => (
-              <Button
-                key={cat.id}
-                variant={selectedCategory === cat.slug ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => handleCategoryChange(cat.slug)}
-                className={cn(
-                  'rounded-full h-10 px-4 gap-1.5 font-semibold transition-all',
-                  selectedCategory === cat.slug
-                    ? 'bg-zinc-900 text-white hover:bg-zinc-800 dark:bg-amber-500 dark:text-zinc-900 dark:hover:bg-amber-400'
-                    : 'bg-white border-zinc-300 text-zinc-700 hover:bg-zinc-100 dark:bg-zinc-900 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800'
-                )}
-              >
-                <span>{cat.icon}</span>
-                {cat.name}
-              </Button>
-            ))}
-          </motion.div>
-
-          {/* Products Grid */}
+          {/* PRODUCT GRID */}
           {isLoading ? (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
               {Array.from({ length: 10 }).map((_, i) => (
-                <motion.div key={i} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.05 }}>
-                  <Skeleton className="aspect-[3/4] rounded-2xl bg-zinc-200/50 dark:bg-zinc-800" />
-                </motion.div>
+                <Skeleton
+                  key={i}
+                  className="aspect-[3/4] rounded-2xl bg-zinc-300/40 dark:bg-zinc-800"
+                />
               ))}
             </div>
           ) : filteredProducts.length > 0 ? (
-            <motion.div 
-              className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6"
+            <motion.div
               variants={containerVariants}
               initial="hidden"
               animate="visible"
+              className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6"
             >
               {filteredProducts.map((product) => (
-                <motion.div
-                  key={product.id}
-                  variants={itemVariants}
-                >
+                <motion.div key={product.id} variants={itemVariants}>
                   <ProductCard product={product} />
                 </motion.div>
               ))}
             </motion.div>
           ) : (
-            <motion.div 
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="text-center py-16 bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-lg"
-            >
-              <div className="h-20 w-20 rounded-full bg-amber-500/10 flex items-center justify-center mx-auto mb-4">
-                <Search className="h-10 w-10 text-amber-500" />
-              </div>
-              <h3 className="font-semibold text-xl mb-2 text-zinc-900 dark:text-white">No matching products found</h3>
+            <div className="text-center py-16 bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-xl">
+              <Search className="h-12 w-12 mx-auto mb-4 text-amber-500" />
+              <h3 className="text-xl font-semibold mb-2">No products found</h3>
               <p className="text-zinc-500 dark:text-zinc-400 mb-6">
-                Please check your spelling or try adjusting your filters and category selection.
+                Try changing your filters or adjusting your search.
               </p>
-              <Button 
+              <Button
                 onClick={clearFilters}
-                className="rounded-full h-12 px-8 bg-zinc-900 hover:bg-zinc-800 dark:bg-amber-500 dark:text-zinc-900 dark:hover:bg-amber-400"
+                className="h-12 px-8 rounded-full bg-zinc-900 dark:bg-amber-500 dark:text-zinc-900"
               >
-                Clear All Filters
+                Reset Filters
               </Button>
-            </motion.div>
+            </div>
           )}
+
         </div>
       </div>
     </Layout>
   );
-      }
+}

@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { invokeAdminFunction } from "@/lib/adminApi";
 import { Loader2, Pencil, Plus, Trash } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function StockManager() {
   const { data: products = [], isLoading } = useAllProducts();
@@ -14,6 +15,7 @@ export default function StockManager() {
   const [selectedProduct, setSelectedProduct] = useState<any>(null);
   const [isDialogOpen, setDialogOpen] = useState(false);
   const [saving, setSaving] = useState(false);
+  const queryClient = useQueryClient();
 
   const filteredProducts = useMemo(() => {
     const q = search.toLowerCase();
@@ -61,32 +63,28 @@ export default function StockManager() {
   };
 
   const saveChanges = async () => {
-  try {
-    setSaving(true);
+    try {
+      setSaving(true);
 
-    const sessionToken = sessionStorage.getItem("admin_session_token");
-    if (!sessionToken) {
-      toast.error("Admin session missing. Please login again.");
-      return;
+      // invokeAdminFunction automatically handles session token via x-admin-session header
+      const result = await invokeAdminFunction("admin-update-size-stock", {
+        productId: selectedProduct.id,
+        sizes: selectedProduct.sizes,
+        sizeStock: selectedProduct.sizeStock,
+      });
+
+      if (!result.success) throw new Error(result.error || "Failed");
+
+      toast.success("Sizes & stock updated");
+      setDialogOpen(false);
+      // Refresh products list
+      queryClient.invalidateQueries({ queryKey: ["all-products"] });
+    } catch (err: any) {
+      toast.error(err.message || "Error saving");
+    } finally {
+      setSaving(false);
     }
-
-    const result = await invokeAdminFunction("admin-update-size-stock", {
-      sessionToken,
-      productId: selectedProduct.id,
-      sizes: selectedProduct.sizes,
-      sizeStock: selectedProduct.sizeStock,
-    });
-
-    if (!result.success) throw new Error(result.error || "Failed");
-
-    toast.success("Sizes & stock updated");
-    setDialogOpen(false);
-  } catch (err: any) {
-    toast.error(err.message || "Error saving");
-  } finally {
-    setSaving(false);
-  }
-};
+  };
 
   if (isLoading)
     return (
@@ -131,7 +129,7 @@ export default function StockManager() {
               />
               <div>
                 <p className="font-semibold">{p.name}</p>
-                {p.sizes?.length > 0 ? (
+                {p.sizes && p.sizes.length > 0 ? (
                   <p className="text-xs text-muted-foreground">
                     Sizes: {p.sizes.join(", ")}
                   </p>

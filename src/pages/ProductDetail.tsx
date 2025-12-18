@@ -1,33 +1,50 @@
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { Plus, Minus, ChevronLeft, Star, Heart } from 'lucide-react';
+import { Plus, Minus, ChevronLeft, Heart } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Layout } from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useCart } from '@/contexts/CartContext';
-import { useProductBySlug, useProducts } from '@/hooks/useProducts';
+import { useProductBySlug } from '@/hooks/useProducts';
 import { useCategories } from '@/hooks/useCategories';
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 
 export default function ProductDetail() {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   
-  // Assuming CartContext exposes a clearCart or similar, otherwise we just add.
-  // We need 'items' to check logic, but for "Buy Now" we rely on local state first.
   const { addItem, clearCart } = useCart(); 
   
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [selectedSize, setSelectedSize] = useState<string>('S');
+  const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [quantity, setQuantity] = useState<number>(1);
   const [isWishlisted, setIsWishlisted] = useState(false);
 
   const { data: product, isLoading: productLoading } = useProductBySlug(slug);
   const { data: categories = [] } = useCategories();
 
-  // Mock sizes since they aren't in the original type definition
-  const SIZES = ['XS', 'S', 'M', 'L', 'XL'];
+  // Compute sizes & stock directly from DB
+  const SIZES = product?.sizes ?? [];
+  const SIZE_STOCK = product?.sizeStock ?? {};
+
+  // Free-size detection (no sizes set)
+  const isFreeSize = SIZES.length === 0;
+
+  // Auto-select size when product loads
+  useEffect(() => {
+    if (!product) return;
+
+    if (isFreeSize) {
+      setSelectedSize(null);
+      return;
+    }
+
+    // Find first size that has stock, else first size
+    const available = SIZES.find(size => (SIZE_STOCK[size] ?? 0) > 0);
+    setSelectedSize(available || SIZES[0]);
+
+  }, [product]);
 
   const category = useMemo(() => {
     return product ? categories.find(c => c.id === product.categoryId) : null;
@@ -45,37 +62,34 @@ export default function ProductDetail() {
     return imgs.length ? imgs : ['/placeholder.svg'];
   }, [product]);
 
-  // Logic to handle "Buy Now" - Open cart with only this item
-  const handleBuyNow = () => {
-    if (!product) return;
-
-    // 1. Optional: Clear existing cart to ensure "only that item"
-    // If your context supports clearCart(), use it. 
-    if (clearCart) clearCart();
-
-    // 2. Add the item with specific quantity
-    // We loop to add the specific quantity since addItem usually adds 1
-    for (let i = 0; i < quantity; i++) {
-       addItem(product); 
-    }
-
-    // 3. Navigate directly to cart
-    navigate('/cart');
-  };
-
   const handleQuantity = (type: 'inc' | 'dec') => {
     if (type === 'dec') {
       setQuantity(prev => Math.max(1, prev - 1));
-    } else {
-      setQuantity(prev => prev + 1);
+      return;
     }
+
+    // If size selected, limit by size stock
+    if (!isFreeSize && selectedSize) {
+      const stock = SIZE_STOCK[selectedSize] ?? 0;
+      setQuantity(prev => Math.min(stock, prev + 1));
+      return;
+    }
+
+    setQuantity(prev => prev + 1);
+  };
+
+  const handleAddToCart = () => {
+    if (!product) return;
+
+    addItem(product, quantity, selectedSize ?? undefined);
+    navigate("/cart");
   };
 
   if (productLoading) {
     return (
       <Layout>
         <div className="container h-screen flex flex-col justify-end pb-10">
-            <Skeleton className="h-full w-full rounded-3xl" />
+          <Skeleton className="h-full w-full rounded-3xl" />
         </div>
       </Layout>
     );
@@ -100,7 +114,7 @@ export default function ProductDetail() {
       {/* --- TOP IMAGE SECTION --- */}
       <div className="relative w-full h-[55vh] md:h-[60vh] lg:h-[65vh] bg-gray-100">
         
-        {/* Navigation Overlay */}
+        {/* Navigation */}
         <div className="absolute top-0 left-0 right-0 p-6 flex justify-between items-center z-20">
           <button 
             onClick={() => navigate(-1)} 
@@ -119,7 +133,7 @@ export default function ProductDetail() {
           </button>
         </div>
 
-        {/* Image Display */}
+        {/* Image */}
         <AnimatePresence mode="wait">
           <motion.img
             key={currentImageIndex}
@@ -133,7 +147,7 @@ export default function ProductDetail() {
           />
         </AnimatePresence>
 
-        {/* Image Dots (if multiple) */}
+        {/* Image dots */}
         {allImages.length > 1 && (
           <div className="absolute bottom-10 left-0 right-0 flex justify-center gap-2 z-20">
             {allImages.map((_, idx) => (
@@ -150,66 +164,80 @@ export default function ProductDetail() {
         )}
       </div>
 
-      {/* --- BOTTOM DETAILS SHEET --- */}
+      {/* --- DETAILS SECTION --- */}
       <div className="relative z-10 -mt-8 bg-white rounded-t-[35px] px-6 pt-8 pb-8 shadow-[0_-10px_40px_rgba(0,0,0,0.05)] min-h-[45vh] flex flex-col">
         
-        {/* Header Info */}
+        {/* Title + Category */}
         <div className="mb-6">
           <h1 className="text-3xl font-bold text-zinc-900 mb-1 tracking-tight">
             {product.name}
           </h1>
           <p className="text-zinc-400 text-sm font-medium mb-3">
-            {category ? category.name : "Women's Collection"}
+            {category ? category.name : ""}
           </p>
-          
-          {/* Rating (Mocked to match image) */}
-          <div className="flex items-center gap-1">
-            {[1, 2, 3, 4, 5].map((star) => (
-              <Star 
-                key={star} 
-                className={cn("w-4 h-4", star <= 4 ? "fill-zinc-900 text-zinc-900" : "text-zinc-300")} 
-              />
-            ))}
-            <span className="ml-2 text-xs font-bold text-zinc-500">(5.0)</span>
-          </div>
         </div>
 
-        {/* Size Selector */}
-        <div className="mb-8">
-          <h3 className="text-sm font-semibold text-zinc-900 mb-4">Select size</h3>
-          <div className="flex gap-4">
-            {SIZES.map((size) => (
-              <button
-                key={size}
-                onClick={() => setSelectedSize(size)}
-                className={cn(
-                  "w-12 h-12 rounded-full flex items-center justify-center text-sm font-bold transition-all",
-                  selectedSize === size
-                    ? "bg-yellow-400 text-zinc-900 shadow-lg shadow-yellow-400/30 scale-110" // Selected: Yellow
-                    : "bg-zinc-100 text-zinc-400 hover:bg-zinc-200" // Default: Grey
-                )}
-              >
-                {size}
-              </button>
-            ))}
-          </div>
-        </div>
+        {/* SIZE SELECTOR */}
+        {!isFreeSize && (
+          <div className="mb-8">
+            <h3 className="text-sm font-semibold text-zinc-900 mb-4">Select size</h3>
+            <div className="flex gap-4 flex-wrap">
+              {SIZES.map((size) => {
+                const stock = SIZE_STOCK[size] ?? 0;
+                const disabled = stock <= 0;
 
-        {/* Quantity & Price Row */}
+                return (
+                  <button
+                    key={size}
+                    disabled={disabled}
+                    onClick={() => {
+                      setSelectedSize(size);
+                      setQuantity(1); // reset qty
+                    }}
+                    className={cn(
+                      "w-12 h-12 rounded-full flex items-center justify-center text-sm font-bold transition-all",
+                      disabled
+                        ? "bg-zinc-200 text-zinc-400 opacity-50"
+                        : selectedSize === size
+                        ? "bg-yellow-400 text-zinc-900 shadow-lg scale-110"
+                        : "bg-zinc-100 text-zinc-400 hover:bg-zinc-200"
+                    )}
+                  >
+                    {size}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Show stock for selected size */}
+            {selectedSize && (
+              <p className="text-xs text-zinc-500 mt-2">
+                In stock: {SIZE_STOCK[selectedSize] ?? 0}
+              </p>
+            )}
+          </div>
+        )}
+
+        {/* FREE SIZE MODE */}
+        {isFreeSize && (
+          <div className="mb-8 text-sm text-zinc-600 font-medium">
+            This item does not require size selection (Free Size / Accessories)
+          </div>
+        )}
+
+        {/* Quantity & Price */}
         <div className="flex items-center justify-between mb-8 mt-auto">
           <div className="flex items-center gap-4">
-            {/* Decrease */}
+
             <button 
               onClick={() => handleQuantity('dec')}
               className="w-10 h-10 rounded-full border border-zinc-300 flex items-center justify-center hover:bg-zinc-50 transition-colors"
             >
               <Minus className="w-4 h-4 text-zinc-600" />
             </button>
-            
-            {/* Number */}
+
             <span className="text-xl font-bold min-w-[1.5rem] text-center">{quantity}</span>
             
-            {/* Increase */}
             <button 
               onClick={() => handleQuantity('inc')}
               className="w-10 h-10 rounded-full bg-zinc-900 text-white flex items-center justify-center hover:bg-zinc-800 transition-colors shadow-lg"
@@ -220,15 +248,15 @@ export default function ProductDetail() {
 
           <div className="text-right">
             <span className="text-3xl font-bold text-zinc-900">
-              ${(product.price * quantity).toFixed(2)}
+              ₹{(product.price * quantity).toFixed(2)}
             </span>
           </div>
         </div>
 
-        {/* Buy Now Button */}
+        {/* Add to Cart */}
         <Button 
-          onClick={handleBuyNow}
-          className="w-full h-16 rounded-3xl bg-zinc-900 text-white text-lg font-medium hover:bg-zinc-800 shadow-xl shadow-zinc-900/20"
+          onClick={handleAddToCart}
+          className="w-full h-16 rounded-3xl bg-zinc-900 text-white text-lg font-medium hover:bg-zinc-800 shadow-xl"
         >
           Add to Bag
         </Button>

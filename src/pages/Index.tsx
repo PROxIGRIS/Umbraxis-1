@@ -1,42 +1,42 @@
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   ArrowRight,
   Search,
+  Package,
+  Sparkles,
   Zap,
+  ShoppingBag,
   Tag,
   Star,
-  ShieldCheck,
-  Clock,
-  TrendingUp,
-  Smartphone,
-  ChevronRight
+  ShieldCheck
 } from "lucide-react";
-import { motion, useReducedMotion } from "framer-motion";
+import { motion } from "framer-motion";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ProductCard } from "@/components/products/ProductCard";
+import { CategoryCard } from "@/components/products/CategoryCard";
 import { useCategories } from "@/hooks/useCategories";
 import { useFeaturedProducts } from "@/hooks/useProducts";
 import { Skeleton } from "@/components/ui/skeleton";
 
-// --- OPTIMIZED UTILS ---
-
-// Reduced motion check for accessibility and low-end devices
-const transitionSettings = { duration: 0.4, ease: "easeOut" };
+// Define animation variants outside component to prevent re-creation
+const fadeIn = {
+  hidden: { opacity: 0, y: 10 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.5 } }
+};
 
 export default function Index() {
   const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
-  const shouldReduceMotion = useReducedMotion();
 
   const { data: categories = [], isLoading: categoriesLoading } = useCategories();
   const { data: featuredProducts = [], isLoading: productsLoading } = useFeaturedProducts();
 
-  // Memoize heavy operations
-  const topCategories = useMemo(() => categories.slice(0, 10), [categories]);
-  const topProducts = useMemo(() => featuredProducts.slice(0, 10), [featuredProducts]);
+  // Reduced slice size for faster initial paint on low-end devices
+  const topCategories = useMemo(() => categories.slice(0, 4), [categories]);
+  const topProducts = useMemo(() => featuredProducts.slice(0, 6), [featuredProducts]);
 
   const handleSearch = (e?: React.FormEvent) => {
     e?.preventDefault();
@@ -47,247 +47,210 @@ export default function Index() {
 
   return (
     <Layout>
-      <div className="bg-white dark:bg-zinc-950 min-h-screen">
+      {/* HERO SECTION */}
+      <section className="relative overflow-hidden bg-zinc-50 dark:bg-zinc-950">
         
-        {/* --- MOBILE SEARCH HEADER (Sticky) --- */}
-        <header className="sticky top-0 z-40 bg-white border-b border-zinc-100 dark:bg-zinc-900 dark:border-zinc-800 px-4 py-3 shadow-sm lg:hidden">
-          <form onSubmit={handleSearch} className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400" />
-            <input 
-              type="search"
-              placeholder="Search for products, brands and more"
-              className="w-full h-10 pl-10 pr-4 rounded-lg bg-zinc-100 dark:bg-zinc-800 border-none text-sm focus:ring-2 focus:ring-indigo-500 transition-all"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </form>
-        </header>
+        {/* OPTIMIZATION: Removed heavy blur blobs. Used simple gradient mesh instead */}
+        <div className="absolute inset-0 bg-gradient-to-b from-indigo-50/50 to-transparent dark:from-indigo-950/20 pointer-events-none" />
 
-        {/* --- HERO SECTION (Optimized) --- */}
-        <section className="relative overflow-hidden pt-6 pb-12 lg:py-20">
-          {/* Static CSS Gradient Background - GPU Efficient */}
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-indigo-100 via-zinc-50 to-zinc-50 dark:from-indigo-950/30 dark:via-zinc-950 dark:to-zinc-950 opacity-70 pointer-events-none" />
-          
-          <div className="container relative z-10">
-            <div className="grid lg:grid-cols-2 gap-8 items-center">
-              
-              {/* Left Content */}
-              <motion.div 
-                initial={shouldReduceMotion ? { opacity: 1 } : { opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={transitionSettings}
-              >
-                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 text-xs font-bold uppercase tracking-wider mb-6">
-                  <Zap className="w-3 h-3 fill-current" />
-                  <span>Mega Winter Sale</span>
-                </div>
+        <div className="container relative py-12 md:py-24">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-20 items-center">
 
-                <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold tracking-tight text-zinc-900 dark:text-white leading-[1.1]">
-                  Discover the <br className="hidden sm:block" />
-                  <span className="text-indigo-600 dark:text-indigo-400">Extraordinary.</span>
-                </h1>
-                
-                <p className="mt-4 text-lg text-zinc-600 dark:text-zinc-400 max-w-lg leading-relaxed">
-                  Shop the latest trends with confidence. Verified quality, lightning-fast delivery, and prices that make sense.
-                </p>
-
-                {/* Desktop Search */}
-                <form onSubmit={handleSearch} className="hidden lg:block mt-8 relative max-w-md">
-                  <div className="relative flex items-center">
-                    <input 
-                      className="w-full h-14 pl-6 pr-32 rounded-full border-2 border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 focus:border-indigo-500 focus:ring-0 transition-colors shadow-sm text-lg"
-                      placeholder="What are you looking for?"
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                    />
-                    <Button type="submit" className="absolute right-2 h-10 px-6 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium">
-                      Search
-                    </Button>
-                  </div>
-                </form>
-
-                {/* Trust Badges - Optimized layout */}
-                <div className="mt-8 flex flex-wrap gap-4 text-sm font-medium text-zinc-600 dark:text-zinc-400">
-                  <div className="flex items-center gap-2">
-                    <ShieldCheck className="w-4 h-4 text-emerald-500" /> Genuine Products
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <TrendingUp className="w-4 h-4 text-indigo-500" /> Easy Returns
-                  </div>
-                </div>
-              </motion.div>
-
-              {/* Right Content - Static Image with Light Animation instead of 3D Card */}
-              <motion.div 
-                className="relative hidden lg:block"
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.1, ...transitionSettings }}
-              >
-                <div className="relative aspect-[4/3] rounded-3xl overflow-hidden bg-zinc-100 shadow-2xl ring-1 ring-zinc-900/5">
-                  {/* Replace this with a real banner image in production */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white">
-                    <div className="text-center p-8">
-                       <span className="block text-9xl font-black opacity-20 select-none">50%</span>
-                       <h3 className="text-3xl font-bold relative -mt-12">Winter Collection</h3>
-                       <Button variant="secondary" className="mt-6 rounded-full" asChild>
-                         <Link to="/products">Shop Now</Link>
-                       </Button>
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
-            </div>
-          </div>
-        </section>
-
-        {/* --- CATEGORY RAIL (Mobile Optimized - Horizontal Scroll) --- */}
-        <section className="py-4 lg:py-10 border-b border-zinc-100 dark:border-zinc-800">
-          <div className="container">
-            <div className="flex items-center justify-between mb-4 px-1">
-              <h2 className="text-lg lg:text-2xl font-bold text-zinc-900 dark:text-white">Shop by Category</h2>
-              <Link to="/categories" className="text-indigo-600 text-sm font-medium flex items-center">
-                See All <ChevronRight className="w-4 h-4" />
-              </Link>
-            </div>
-            
-            {/* Horizontal Scroll Container */}
-            <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide -mx-4 px-4 sm:mx-0 sm:px-0 snap-x">
-              {categoriesLoading ? (
-                 Array.from({ length: 6 }).map((_, i) => (
-                   <div key={i} className="flex-none w-20 lg:w-32 text-center space-y-2">
-                     <Skeleton className="w-16 h-16 lg:w-24 lg:h-24 rounded-full mx-auto" />
-                     <Skeleton className="h-3 w-12 mx-auto" />
-                   </div>
-                 ))
-              ) : (
-                topCategories.map((cat) => (
-                  <Link 
-                    key={cat.id} 
-                    to={`/products?category=${cat.slug}`}
-                    className="flex-none snap-start group w-20 lg:w-28 flex flex-col items-center gap-2"
-                  >
-                    <div className="w-16 h-16 lg:w-24 lg:h-24 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-zinc-400 group-hover:bg-indigo-50 group-hover:text-indigo-600 transition-colors border border-zinc-200 dark:border-zinc-700">
-                      {/* Fallback Icon if no image */}
-                      <Smartphone className="w-6 h-6 lg:w-8 lg:h-8" />
-                    </div>
-                    <span className="text-xs lg:text-sm font-medium text-zinc-700 dark:text-zinc-300 text-center line-clamp-1">
-                      {cat.name}
-                    </span>
-                  </Link>
-                ))
-              )}
-            </div>
-          </div>
-        </section>
-
-        {/* --- FLASH SALE BANNER --- */}
-        <section className="py-8 bg-gradient-to-r from-rose-500 to-orange-500 text-white overflow-hidden relative">
-          <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay" />
-          <div className="container relative flex flex-col md:flex-row items-center justify-between gap-6">
-            <div className="text-center md:text-left">
-              <div className="flex items-center justify-center md:justify-start gap-2 mb-2 text-rose-100 font-medium text-sm uppercase tracking-wide">
-                <Clock className="w-4 h-4 animate-pulse" /> Limited Time Offer
+            {/* LEFT - Content */}
+            <motion.div
+              initial="hidden"
+              animate="visible"
+              variants={fadeIn}
+              className="max-w-2xl relative z-10"
+            >
+              {/* Premium Badge - Static styles instead of animated width */}
+              <div className="inline-flex items-center gap-2 px-3 py-1 mb-6 rounded-full border border-zinc-200 bg-white shadow-sm">
+                <Sparkles className="w-3 h-3 text-amber-500" />
+                <span className="text-xs font-bold tracking-widest uppercase text-zinc-800">
+                  New Collection
+                </span>
               </div>
-              <h2 className="text-2xl md:text-3xl font-bold">End of Season Sale</h2>
-              <p className="text-rose-100 mt-1">Up to 70% off on premium brands.</p>
+
+              {/* Headline - Removed SVG Drawing Animation */}
+              <h1 className="text-4xl sm:text-5xl lg:text-7xl font-display font-bold leading-tight tracking-tight text-zinc-900 dark:text-zinc-50">
+                Elevate your <br />
+                <span className="text-indigo-600 dark:text-indigo-400">
+                  everyday style.
+                </span>
+              </h1>
+
+              <p className="mt-6 text-lg text-zinc-600 dark:text-zinc-400 leading-relaxed max-w-lg font-light">
+                Discover premium winter wear and essentials.
+                <span className="font-medium text-zinc-900 dark:text-zinc-200">
+                  {" "}Crafted for comfort.
+                </span>
+              </p>
+
+              {/* Search Bar - Removed Glow/Blur effects */}
+              <form onSubmit={handleSearch} className="mt-8">
+                <div className="relative max-w-lg flex items-center bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 shadow-sm">
+                  <Search className="absolute left-4 text-zinc-400 h-5 w-5" />
+                  <Input
+                    type="search"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search products..."
+                    className="h-14 pl-12 pr-32 text-base bg-transparent border-0 focus-visible:ring-0 placeholder:text-zinc-400 text-zinc-900 dark:text-white"
+                  />
+                  <Button
+                    type="submit"
+                    className="absolute right-1.5 h-11 px-6 rounded-lg font-medium bg-zinc-900 hover:bg-zinc-800 text-white"
+                  >
+                    Explore
+                  </Button>
+                </div>
+              </form>
+
+              {/* Trust Pills - Static entry */}
+              <div className="mt-8 flex flex-wrap gap-2">
+                <FeaturePill icon={<Zap className="w-3.5 h-3.5 text-amber-500" />} text="Fast Delivery" />
+                <FeaturePill icon={<ShieldCheck className="w-3.5 h-3.5 text-indigo-500" />} text="Verified" />
+                <FeaturePill icon={<Tag className="w-3.5 h-3.5 text-emerald-500" />} text="Best Prices" />
+              </div>
+            </motion.div>
+
+            {/* RIGHT - Visuals */}
+            {/* OPTIMIZATION: Fully hidden in DOM on Mobile to save render cost */}
+            <div className="hidden lg:flex relative items-center justify-center">
+              <div className="relative w-[400px] h-[500px]">
+                {/* Simplified Card - Removed rotations and noise textures */}
+                <div className="absolute inset-4 bg-zinc-900 rounded-[2rem] shadow-xl flex flex-col items-center justify-between p-8 text-white border border-zinc-800">
+                  
+                  <div className="w-full flex justify-between items-center">
+                    <span className="font-mono text-xs text-zinc-500">FW/24</span>
+                    <div className="h-2 w-2 rounded-full bg-green-500" />
+                  </div>
+
+                  <div className="text-center">
+                    <div className="w-20 h-20 mx-auto bg-zinc-800 rounded-full flex items-center justify-center mb-4">
+                      <ShoppingBag className="w-8 h-8 text-white" />
+                    </div>
+                    <h3 className="text-2xl font-display font-bold tracking-widest">ESSENTIALS</h3>
+                  </div>
+
+                  <div className="w-full">
+                    {/* Replaced infinite width animation with static bar */}
+                    <div className="h-1 w-full bg-zinc-800 rounded-full overflow-hidden">
+                      <div className="h-full bg-white w-3/4" />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Static Notification Card - No float animation */}
+                <div className="absolute top-20 -right-4 bg-white p-3 pr-6 rounded-xl shadow-lg border border-zinc-100 z-20">
+                  <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 bg-indigo-50 rounded-lg flex items-center justify-center">
+                      <Package className="h-5 w-5 text-indigo-600" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-bold text-zinc-900">Dispatched</p>
+                      <p className="text-[10px] text-zinc-500">Just now</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div className="flex items-center gap-3">
-              <CountdownBox num={12} label="Hrs" />
-              <span className="text-2xl font-bold mb-4">:</span>
-              <CountdownBox num={45} label="Mins" />
-              <span className="text-2xl font-bold mb-4">:</span>
-              <CountdownBox num={18} label="Secs" />
+          </div>
+        </div>
+      </section>
+
+      {/* CATEGORIES SECTION */}
+      <section className="py-12 bg-white dark:bg-zinc-950">
+        <div className="container">
+          <div className="flex items-end justify-between mb-8">
+            <div>
+              <h2 className="text-2xl md:text-3xl font-display font-bold text-zinc-900">Categories</h2>
             </div>
-            <Button size="lg" className="bg-white text-rose-600 hover:bg-rose-50 border-none font-bold shadow-lg rounded-full px-8">
-              Grab Deals
+            <Link to="/products" className="text-sm font-medium text-indigo-600 hover:text-indigo-700 flex items-center gap-1">
+              View all <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
+
+          {categoriesLoading ? (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <Skeleton key={i} className="h-32 rounded-2xl bg-zinc-100" />
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {topCategories.map((c, idx) => (
+                <CategoryCard key={c.id} category={c} index={idx} />
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* BESTSELLERS SECTION */}
+      <section className="py-12 bg-zinc-50 dark:bg-zinc-900/50">
+        <div className="container">
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <div className="flex items-center gap-2 text-amber-600 font-bold mb-1 text-[10px] uppercase tracking-widest">
+                <Star className="w-3 h-3 fill-current" />
+                Favorites
+              </div>
+              <h2 className="text-2xl md:text-3xl font-display font-bold text-zinc-900">Trending</h2>
+            </div>
+          </div>
+
+          {productsLoading ? (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <Skeleton key={i} className="aspect-[3/4] rounded-xl bg-zinc-200" />
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+              {topProducts.map((p) => (
+                <ProductCard key={p.id} product={p} />
+              ))}
+            </div>
+          )}
+          
+          <div className="mt-8 text-center">
+            <Button asChild variant="outline" className="w-full md:w-auto rounded-lg h-12 border-zinc-300">
+              <Link to="/products">Shop all products</Link>
             </Button>
           </div>
-        </section>
+        </div>
+      </section>
 
-        {/* --- PRODUCT GRID --- */}
-        <section className="py-12 bg-zinc-50 dark:bg-zinc-950/50">
-          <div className="container">
-            <div className="flex items-center justify-between mb-8">
-              <h2 className="text-xl lg:text-3xl font-bold text-zinc-900 dark:text-white">Recommended for You</h2>
-            </div>
-
-            {productsLoading ? (
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 lg:gap-6">
-                {Array.from({ length: 10 }).map((_, i) => (
-                  <div key={i} className="space-y-3">
-                    <Skeleton className="aspect-[4/5] w-full rounded-xl" />
-                    <Skeleton className="h-4 w-3/4" />
-                    <Skeleton className="h-4 w-1/2" />
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 lg:gap-6">
-                {topProducts.map((product) => (
-                  <ProductCardWrapper key={product.id} product={product} />
-                ))}
-              </div>
-            )}
-
-            <div className="mt-12 text-center">
-              <Button variant="outline" size="lg" className="min-w-[200px] bg-white dark:bg-zinc-900 rounded-full" asChild>
-                <Link to="/products">View All Products</Link>
+      {/* SIMPLE CTA SECTION - Removed Noise Texture & Gradient Overlay */}
+      <section className="py-16">
+        <div className="container">
+          <div className="relative rounded-3xl overflow-hidden bg-zinc-900 text-white shadow-lg p-8 md:p-16 text-center">
+            <h3 className="text-3xl md:text-4xl font-display font-bold mb-4">
+              Quality First.
+            </h3>
+            <p className="text-zinc-400 mb-8 max-w-xl mx-auto">
+              Join thousands of happy customers. Fast delivery and premium support.
+            </p>
+            
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+              <Button asChild size="lg" className="w-full sm:w-auto rounded-full bg-white text-zinc-950 hover:bg-zinc-200">
+                <Link to="/products">Start Shopping</Link>
               </Button>
             </div>
           </div>
-        </section>
-
-        {/* --- APP DOWNLOAD CTA (Trust Signal) --- */}
-        <section className="py-16 bg-white dark:bg-zinc-950 border-t border-zinc-100 dark:border-zinc-800">
-          <div className="container">
-            <div className="bg-indigo-600 rounded-2xl p-8 lg:p-12 text-white relative overflow-hidden flex flex-col md:flex-row items-center justify-between">
-              {/* Decorative Circle */}
-              <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-16 -mt-16 blur-2xl" />
-              
-              <div className="relative z-10 max-w-xl text-center md:text-left mb-8 md:mb-0">
-                <h3 className="text-2xl md:text-3xl font-bold mb-4">Shop faster on the app</h3>
-                <p className="text-indigo-100 text-lg mb-6">Get exclusive deals, real-time tracking, and personalized recommendations.</p>
-                <div className="flex gap-4 justify-center md:justify-start">
-                  <div className="h-10 w-32 bg-black/20 rounded-lg flex items-center justify-center border border-white/20 cursor-pointer hover:bg-black/30 transition">
-                    <span className="text-xs font-bold">App Store</span>
-                  </div>
-                  <div className="h-10 w-32 bg-black/20 rounded-lg flex items-center justify-center border border-white/20 cursor-pointer hover:bg-black/30 transition">
-                    <span className="text-xs font-bold">Google Play</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Mockup or Illustration */}
-              <div className="relative z-10">
-                 <Smartphone className="w-32 h-32 text-indigo-200 opacity-80" />
-              </div>
-            </div>
-          </div>
-        </section>
-
-      </div>
+        </div>
+      </section>
     </Layout>
   );
 }
 
-// --- OPTIMIZED SUB-COMPONENTS ---
-
-function CountdownBox({ num, label }: { num: number; label: string }) {
+/* Optimized Feature Pill - No Backdrop Blur */
+function FeaturePill({ icon, text }: { icon: React.ReactNode; text: string }) {
   return (
-    <div className="bg-white/10 backdrop-blur-sm rounded-lg p-2 min-w-[60px] text-center border border-white/10">
-      <div className="text-xl md:text-2xl font-bold leading-none">{num}</div>
-      <div className="text-[10px] uppercase opacity-80 mt-1">{label}</div>
+    <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white border border-zinc-200 shadow-sm">
+      <span className="flex-shrink-0">{icon}</span>
+      <span className="text-[10px] sm:text-xs font-bold text-zinc-700 uppercase tracking-wide">{text}</span>
     </div>
   );
 }
-
-// A wrapper to ensure layout stability for product cards
-function ProductCardWrapper({ product }: { product: any }) {
-  return (
-    <div className="group relative bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 rounded-xl overflow-hidden hover:shadow-lg transition-shadow duration-300">
-       {/* Pass product props to your existing card component, or build a simple optimized one here */}
-       <ProductCard product={product} />
-    </div>
-  );
-            }

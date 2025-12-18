@@ -46,7 +46,7 @@ export function Header() {
           </motion.div>
           <div className="hidden sm:flex flex-col">
             <span className="text-xl font-display font-bold leading-none text-zinc-900 dark:text-white">
-              MKV<span className="text-amber-500">ESSENTIALS</span>
+              Ravenius<span className="text-amber-500">Wears</span>
             </span>
             <span className="text-[10px] text-zinc-500 dark:text-zinc-400 font-medium tracking-wide uppercase mt-0.5">
               Curated Style. Daily Comfort.

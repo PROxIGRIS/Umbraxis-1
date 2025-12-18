@@ -145,10 +145,10 @@ export default function PrivacyPolicy() {
                   </div>
                   <div>
                     <h1 className="text-3xl md:text-4xl font-display font-bold leading-tight text-zinc-900 dark:text-white">
-                      MKV Essentials Privacy Policy
+                      Ravenius Privacy Policy
                     </h1>
                     <p className="text-md text-zinc-500 dark:text-zinc-400 mt-2 max-w-lg">
-                      Your privacy is paramount. We only collect the necessary data to process payments and deliver your items efficiently.
+                     At ravenius your privacy is paramount. We only collect the necessary data to process payments and deliver your items efficiently.
                     </p>
                   </div>
                 </div>

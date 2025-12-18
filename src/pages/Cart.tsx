@@ -92,11 +92,28 @@ export default function Cart() {
                 >
                   <Link to={`/product/${item.product.slug}`} className="shrink-0">
                     {/* Image with elevated look */}
-                    <img
-                      src={item.product.imageUrl}
-                      alt={item.product.name}
-                      className="h-28 w-28 md:h-32 md:w-32 rounded-xl object-cover border border-zinc-100 dark:border-zinc-700 shadow-inner"
-                    />
+                   const getImage = (p: any) => {
+  const imgs: string[] = [];
+
+  if (p.images?.length) {
+    p.images.forEach((img: string) => {
+      if (img && img.trim() !== "" && img !== "/placeholder.svg" && !imgs.includes(img)) {
+        imgs.push(img);
+      }
+    });
+  }
+
+  if (
+    p.imageUrl &&
+    p.imageUrl.trim() !== "" &&
+    p.imageUrl !== "/placeholder.svg" &&
+    !imgs.includes(p.imageUrl)
+  ) {
+    imgs.unshift(p.imageUrl);
+  }
+
+  return imgs.length ? imgs[0] : "/placeholder.svg";
+};
                   </Link>
                   <div className="flex-1 min-w-0">
                     <Link to={`/product/${item.product.slug}`}>

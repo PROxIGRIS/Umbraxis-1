@@ -51,16 +51,25 @@ export default function ProductDetail() {
   }, [product, categories]);
 
   const allImages = useMemo(() => {
-    if (!product) return [];
-    const imgs: string[] = [];
-    if (product.imageUrl) imgs.push(product.imageUrl);
-    if (product.images?.length) {
-      product.images.forEach(img => {
-        if (img && !imgs.includes(img)) imgs.push(img);
-      });
-    }
-    return imgs.length ? imgs : ['/placeholder.svg'];
-  }, [product]);
+  if (!product) return [];
+
+  const imgs: string[] = [];
+
+  // Prevent empty string from being counted as an image
+  if (product.imageUrl && product.imageUrl.trim() !== "") {
+    imgs.push(product.imageUrl);
+  }
+
+  if (product.images?.length) {
+    product.images.forEach(img => {
+      if (img && img.trim() !== "" && !imgs.includes(img)) {
+        imgs.push(img);
+      }
+    });
+  }
+
+  return imgs.length ? imgs : ['/placeholder.svg'];
+}, [product]);
 
   const handleQuantity = (type: 'inc' | 'dec') => {
     if (type === 'dec') {

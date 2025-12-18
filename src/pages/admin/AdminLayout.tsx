@@ -24,6 +24,9 @@ const navItems = [
   { label: 'Orders', href: '/admin/orders', icon: ShoppingCart },
   { label: 'Coupons', href: '/admin/coupons', icon: Tag },
   { label: 'COD Security', href: '/admin/cod-security', icon: Shield },
+
+  // ⭐ NEW: STOCK MANAGER
+  { label: 'Stock Manager', href: '/admin/stock-manager', icon: Package },
 ];
 
 export default function AdminLayout() {

@@ -14,8 +14,9 @@ import {
   SelectValue
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useProducts, getAllValidImages } from "@/hooks/useProducts";
+import { useProducts } from "@/hooks/useProducts";
 import { useCategories } from "@/hooks/useCategories";
+import { cn } from "@/lib/utils";
 
 type SortOption = "default" | "price-low" | "price-high" | "name";
 
@@ -31,14 +32,49 @@ export default function Products() {
   const { data: products = [], isLoading: productsLoading } = useProducts();
   const { data: categories = [], isLoading: categoriesLoading } = useCategories();
 
-  // Category resolution
+  // ---------------------------------------------------------
+  // IMAGE SANITIZER — MATCHES PRODUCT DETAIL EXACTLY
+  // ---------------------------------------------------------
+  const sanitizeImages = (product: any) => {
+    const imgs: string[] = [];
+
+    if (product.images?.length) {
+      product.images.forEach((img: string) => {
+        if (
+          img &&
+          img.trim() !== "" &&
+          img !== "/placeholder.svg" &&
+          !imgs.includes(img)
+        ) {
+          imgs.push(img);
+        }
+      });
+    }
+
+    if (
+      product.imageUrl &&
+      product.imageUrl.trim() !== "" &&
+      product.imageUrl !== "/placeholder.svg" &&
+      !imgs.includes(product.imageUrl)
+    ) {
+      imgs.unshift(product.imageUrl);
+    }
+
+    return imgs.length ? imgs : ["/placeholder.svg"];
+  };
+
+  // ---------------------------------------------------------
+  // CATEGORY RESOLUTION
+  // ---------------------------------------------------------
   const selectedCategoryData = useMemo(() => {
     return selectedCategory
       ? categories.find(c => c.slug === selectedCategory)
       : null;
   }, [selectedCategory, categories]);
 
-  // Product filtering with proper image handling
+  // ---------------------------------------------------------
+  // PRODUCT FILTERING + IMAGE FIX
+  // ---------------------------------------------------------
   const filteredProducts = useMemo(() => {
     let result = [...products];
 
@@ -70,14 +106,16 @@ export default function Products() {
         break;
     }
 
-    // Attach all valid images using the helper
+    // Attach sanitized images
     return result.map(p => ({
       ...p,
-      allImages: getAllValidImages(p)
+      allImages: sanitizeImages(p)
     }));
   }, [searchQuery, selectedCategory, selectedCategoryData, sortBy, products]);
 
-  // Filter handlers
+  // ---------------------------------------------------------
+  // FILTER HANDLERS
+  // ---------------------------------------------------------
   const handleCategoryChange = (value: string) => {
     const slug = value === "all" ? "" : value;
     setSelectedCategory(slug);
@@ -101,7 +139,9 @@ export default function Products() {
 
   const isLoading = productsLoading || categoriesLoading;
 
-  // Animation
+  // ---------------------------------------------------------
+  // ANIMATION
+  // ---------------------------------------------------------
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -115,14 +155,19 @@ export default function Products() {
     visible: { opacity: 1, y: 0 }
   };
 
+  // ---------------------------------------------------------
+  // RENDER
+  // ---------------------------------------------------------
   return (
     <Layout>
       <div className="bg-zinc-50 dark:bg-zinc-950 min-h-screen">
         <div className="container py-10 md:py-16">
 
-          {/* Header */}
+          {/* ------------------------------------------------------ */}
+          {/* HEADER */}
+          {/* ------------------------------------------------------ */}
           <div className="mb-10">
-            <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-zinc-900 dark:text-white">
+            <h1 className="text-4xl md:text-5xl font-display font-bold tracking-tight text-zinc-900 dark:text-white">
               {selectedCategoryData
                 ? selectedCategoryData.name
                 : "Shop All Essentials"}
@@ -133,10 +178,12 @@ export default function Products() {
             </p>
           </div>
 
-          {/* Filter Bar */}
+          {/* ------------------------------------------------------ */}
+          {/* FILTER BAR */}
+          {/* ------------------------------------------------------ */}
           <div className="flex flex-col lg:flex-row gap-4 mb-10 p-5 rounded-3xl bg-white dark:bg-zinc-900 shadow-xl border border-zinc-200 dark:border-zinc-800">
 
-            {/* Search Field */}
+            {/* SEARCH FIELD */}
             <div className="relative flex-1 max-w-xl">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
               <Input
@@ -148,7 +195,7 @@ export default function Products() {
               />
             </div>
 
-            {/* Category Select */}
+            {/* CATEGORY SELECT */}
             <Select
               value={selectedCategory || "all"}
               onValueChange={handleCategoryChange}
@@ -167,7 +214,7 @@ export default function Products() {
               </SelectContent>
             </Select>
 
-            {/* Sort Select */}
+            {/* SORT SELECT */}
             <Select
               value={sortBy}
               onValueChange={(v) => setSortBy(v as SortOption)}
@@ -184,7 +231,7 @@ export default function Products() {
               </SelectContent>
             </Select>
 
-            {/* Reset */}
+            {/* RESET */}
             {hasActiveFilters && (
               <Button
                 variant="ghost"
@@ -197,7 +244,9 @@ export default function Products() {
             )}
           </div>
 
-          {/* Product Grid */}
+          {/* ------------------------------------------------------ */}
+          {/* PRODUCT GRID */}
+          {/* ------------------------------------------------------ */}
           {isLoading ? (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5">
               {Array.from({ length: 10 }).map((_, i) => (

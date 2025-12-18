@@ -18,6 +18,9 @@ import OrderConfirmation from "./pages/OrderConfirmation";
 import TrackOrder from "./pages/TrackOrder";
 import NotFound from "./pages/NotFound";
 
+// Contact Page (NEW)
+import Contact from "./pages/Contact";
+
 // Legal Pages
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
@@ -34,10 +37,10 @@ import AdminLogin from "./pages/admin/AdminLogin";
 import AdminCoupons from "./pages/admin/AdminCoupons";
 import AdminCreateCoupon from "./pages/admin/AdminCreateCoupon";
 
-// ⭐ NEW: COD Security Settings Page
+// COD Security Settings Page
 import { CODSecuritySettings } from "./pages/admin/CODSecuritySettings";
 
-// ⭐ NEW: STOCK MANAGER PAGE
+// STOCK MANAGER PAGE
 import StockManager from "./pages/admin/StockManager";
 
 const queryClient = new QueryClient();
@@ -65,6 +68,9 @@ function App() {
               <Route path="/order-confirmation/:orderId" element={<OrderConfirmation />} />
               <Route path="/track-order" element={<TrackOrder />} />
 
+              {/* ⭐ NEW CONTACT PAGE */}
+              <Route path="/contact" element={<Contact />} />
+
               {/* Legal Pages */}
               <Route path="/privacy" element={<PrivacyPolicy />} />
               <Route path="/terms" element={<TermsOfService />} />
@@ -87,7 +93,7 @@ function App() {
                 {/* COD Security Settings */}
                 <Route path="cod-security" element={<CODSecuritySettings />} />
 
-                {/* ⭐ NEW: STOCK MANAGER */}
+                {/* Stock Manager */}
                 <Route path="stock-manager" element={<StockManager />} />
 
               </Route>

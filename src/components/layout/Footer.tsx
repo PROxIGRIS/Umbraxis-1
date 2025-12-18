@@ -242,7 +242,7 @@ const Footer = () => {
           {/* BOTTOM STRIP */}
           <div className="pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-white/60 text-sm">
-              © {new Date().getFullYear()} MKV Essentials. All rights reserved.
+              © {new Date().getFullYear()} Ravenius. All rights reserved.
             </p>
 
             <div className="flex gap-6 text-sm text-white/60">

@@ -51,25 +51,27 @@ export default function ProductDetail() {
   }, [product, categories]);
 
   const allImages = useMemo(() => {
-  if (!product) return [];
+    if (!product) return [];
 
-  const imgs: string[] = [];
+    const imgs: string[] = [];
 
-  // Prevent empty string from being counted as an image
-  if (product.imageUrl && product.imageUrl.trim() !== "") {
-    imgs.push(product.imageUrl);
-  }
+    // Collect images from the images array first (real uploaded images)
+    if (product.images?.length) {
+      product.images.forEach(img => {
+        if (img && img.trim() !== "" && img !== '/placeholder.svg' && !imgs.includes(img)) {
+          imgs.push(img);
+        }
+      });
+    }
 
-  if (product.images?.length) {
-    product.images.forEach(img => {
-      if (img && img.trim() !== "" && !imgs.includes(img)) {
-        imgs.push(img);
-      }
-    });
-  }
+    // Only add imageUrl if it's a REAL image (not placeholder) and not already included
+    if (product.imageUrl && product.imageUrl.trim() !== "" && product.imageUrl !== '/placeholder.svg' && !imgs.includes(product.imageUrl)) {
+      imgs.unshift(product.imageUrl); // Add to front only if it's a real image
+    }
 
-  return imgs.length ? imgs : ['/placeholder.svg'];
-}, [product]);
+    // Fallback to placeholder only if NO real images exist
+    return imgs.length ? imgs : ['/placeholder.svg'];
+  }, [product]);
 
   const handleQuantity = (type: 'inc' | 'dec') => {
     if (type === 'dec') {
@@ -273,4 +275,4 @@ export default function ProductDetail() {
       </div>
     </div>
   );
-}
+            }

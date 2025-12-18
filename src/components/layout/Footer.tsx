@@ -100,7 +100,7 @@ const Footer = () => {
             {/* Brand */}
             <div className="space-y-4 lg:col-span-2">
               {/* Brand Name Update */}
-              <h3 className="text-3xl font-bold text-amber-500">MKV ESSENTIALS</h3>
+              <h3 className="text-3xl font-bold text-amber-500">Ravenius</h3>
 
               <p className="text-white/70 leading-relaxed max-w-md">
                 Dedicated to quality, comfort, and sustainable value. We provide stylish, reliable essentials for every modern lifestyle.
@@ -110,13 +110,13 @@ const Footer = () => {
               <div className="space-y-3 pt-4 text-white/70">
                 <div className="flex items-start gap-3">
                   <MapPin className="w-5 h-5 text-amber-500" />
-                  <span>456 Fashion District, New Delhi 110001</span>
+                  <span>Larkaniya tola, Katihar Bihar 854105</span>
                 </div>
                 <div className="flex items-center gap-3">
                   <Phone className="w-5 h-5 text-amber-500" />
                   {/* Changed hover color to white */}
                   <a href="tel:+919876543210" className="hover:text-white transition">
-                    +91 98765 43210
+                    +91 76440 59445
                   </a>
                 </div>
                 <div className="flex items-center gap-3">

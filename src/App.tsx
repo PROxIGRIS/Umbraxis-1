@@ -37,6 +37,9 @@ import AdminCreateCoupon from "./pages/admin/AdminCreateCoupon";
 // ⭐ NEW: COD Security Settings Page
 import { CODSecuritySettings } from "./pages/admin/CODSecuritySettings";
 
+// ⭐ NEW: STOCK MANAGER PAGE
+import StockManager from "./pages/admin/StockManager";
+
 const queryClient = new QueryClient();
 
 function App() {
@@ -81,8 +84,12 @@ function App() {
                 <Route path="coupons" element={<AdminCoupons />} />
                 <Route path="coupons/new" element={<AdminCreateCoupon />} />
 
-                {/* ⭐ NEW: COD Security Settings */}
+                {/* COD Security Settings */}
                 <Route path="cod-security" element={<CODSecuritySettings />} />
+
+                {/* ⭐ NEW: STOCK MANAGER */}
+                <Route path="stock-manager" element={<StockManager />} />
+
               </Route>
 
               {/* 404 */}

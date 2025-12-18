@@ -78,11 +78,11 @@ export function ProductCard({ product, className, style }: ProductCardProps) {
       {/* Image */}
       <Link to={`/product/${product.slug}`} className="relative aspect-square overflow-hidden bg-secondary/30">
         <img
-          src={product.imageUrl}
-          alt={product.name}
-          className="h-full w-full object-cover transition-all duration-700 group-hover:scale-110"
-          loading="lazy"
-        />
+  src={product.allImages?.[0] || "/placeholder.svg"}
+  alt={product.name}
+  className="h-full w-full object-cover transition-all duration-700 group-hover:scale-110"
+  loading="lazy"
+/>
         <div className="absolute inset-0 bg-gradient-to-t from-foreground/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
         
         {!canPurchase && (

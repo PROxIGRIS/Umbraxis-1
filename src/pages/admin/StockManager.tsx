@@ -61,24 +61,32 @@ export default function StockManager() {
   };
 
   const saveChanges = async () => {
-    try {
-      setSaving(true);
-      const result = await invokeAdminFunction("admin-update-size-stock", {
-        productId: selectedProduct.id,
-        sizes: selectedProduct.sizes,
-        sizeStock: selectedProduct.sizeStock,
-      });
+  try {
+    setSaving(true);
 
-      if (!result.success) throw new Error(result.error || "Failed");
-
-      toast.success("Sizes & stock updated");
-      setDialogOpen(false);
-    } catch (err: any) {
-      toast.error(err.message || "Error saving");
-    } finally {
-      setSaving(false);
+    const sessionToken = sessionStorage.getItem("admin_session_token");
+    if (!sessionToken) {
+      toast.error("Admin session missing. Please login again.");
+      return;
     }
-  };
+
+    const result = await invokeAdminFunction("admin-update-size-stock", {
+      sessionToken,
+      productId: selectedProduct.id,
+      sizes: selectedProduct.sizes,
+      sizeStock: selectedProduct.sizeStock,
+    });
+
+    if (!result.success) throw new Error(result.error || "Failed");
+
+    toast.success("Sizes & stock updated");
+    setDialogOpen(false);
+  } catch (err: any) {
+    toast.error(err.message || "Error saving");
+  } finally {
+    setSaving(false);
+  }
+};
 
   if (isLoading)
     return (

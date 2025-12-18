@@ -31,7 +31,7 @@ export default function Contact() {
 
     try {
       const res = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-contact`,
+        "https://awrrsplzkonpzzzbrifz.supabase.co/functions/v1/send-contact",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -156,4 +156,4 @@ export default function Contact() {
       </div>
     </Layout>
   );
-                      }
+}

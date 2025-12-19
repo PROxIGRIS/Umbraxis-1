@@ -995,10 +995,6 @@ const TERMS_SECTIONS: Section[] = [
               term="User Content"
               definition="Any content submitted, uploaded, or posted by Users, including reviews, ratings, comments, images, and feedback."
             />
-            <DefinitionTerm
-              term=""User Content""
-              definition="Any content submitted, uploaded, or posted by Users, including reviews, ratings, comments, images, and feedback."
-            />
           </dl>
         </div>
 

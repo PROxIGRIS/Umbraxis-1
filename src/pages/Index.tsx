@@ -208,8 +208,8 @@ export default function Index() {
                       <Star className="h-5 w-5 text-highlight fill-highlight" />
                     </div>
                     <div>
-                      <p className="text-sm font-semibold text-foreground">4.9 Rating</p>
-                      <p className="text-xs text-muted-foreground">2000+ Reviews</p>
+                      <p className="text-sm font-semibold text-foreground">Highly Rated for affordability</p>
+                      <p className="text-xs text-muted-foreground">Affordable yet premium</p>
                     </div>
                   </div>
                 </motion.div>

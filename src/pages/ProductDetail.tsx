@@ -404,7 +404,7 @@ export default function ProductDetail() {
             {[
               { icon: Truck, label: "Free Delivery" },
               { icon: Shield, label: "Genuine Product" },
-              { icon: RotateCcw, label: "Easy Returns" },
+              { icon: RotateCcw, label: "Easy Returns(if applicable for this item)" },
             ].map(({ icon: Icon, label }) => (
               <div key={label} className="flex items-center gap-2 text-xs text-muted-foreground whitespace-nowrap">
                 <Icon className="w-4 h-4" />
@@ -769,7 +769,7 @@ export default function ProductDetail() {
                 {[
                   { icon: Truck, label: "Free Delivery", desc: "On orders above ₹499" },
                   { icon: Shield, label: "100% Genuine", desc: "Authentic products" },
-                  { icon: RotateCcw, label: "Easy Returns", desc: "7-day return policy" },
+                  { icon: RotateCcw, label: "Easy Returns", desc: "7-day return policy(if applicable)" },
                 ].map(({ icon: Icon, label, desc }) => (
                   <div key={label} className="text-center">
                     <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-secondary flex items-center justify-center">

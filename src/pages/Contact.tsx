@@ -3,7 +3,7 @@ import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, Mail, Phone, MapPin } from "lucide-react";
+import { Mail, Phone, MapPin } from "lucide-react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 
@@ -15,48 +15,41 @@ export default function Contact() {
     message: "",
   });
 
-  const [loading, setLoading] = useState(false);
-
-  const handleChange = (e: any) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const sendMessage = async () => {
+  const sendMessage = () => {
     if (!form.name || !form.email || !form.message) {
       toast.error("Please fill all required fields.");
       return;
     }
 
-    setLoading(true);
+    const subject = encodeURIComponent(
+      `Contact from ${form.name} (${form.email})`
+    );
 
-    try {
-      const res = await fetch(
-        "https://awrrsplzkonpzzzbrifz.supabase.co/functions/v1/send-contact",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(form),
-        }
-      );
+    const body = encodeURIComponent(
+      `Name: ${form.name}
+Email: ${form.email}
+Phone: ${form.phone || "Not provided"}
 
-      const data = await res.json();
+Message:
+${form.message}`
+    );
 
-      if (!data.success) throw new Error(data.error || "Failed");
+    const mailtoLink = `mailto:theravenius@gmail.com?subject=${subject}&body=${body}`;
 
-      toast.success("Message sent successfully!");
-      setForm({ name: "", email: "", phone: "", message: "" });
-    } catch (err: any) {
-      toast.error(err.message || "Something went wrong");
-    }
+    window.location.href = mailtoLink;
 
-    setLoading(false);
+    toast.success("Opening your email app…");
   };
 
   return (
     <Layout>
       <div className="bg-zinc-50 dark:bg-zinc-950/70 min-h-screen">
         <div className="container py-12 md:py-20">
-          
+
           <motion.h1
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -72,41 +65,41 @@ export default function Contact() {
           >
             <div className="grid md:grid-cols-2 gap-8">
 
-              {/* Contact Info */}
+              {/* INFO */}
               <div className="space-y-6">
-                <div className="flex items-start gap-3">
-                  <Mail className="h-6 w-6 text-amber-500 mt-1" />
+                <div className="flex gap-3">
+                  <Mail className="h-6 w-6 text-amber-500" />
                   <div>
-                    <p className="font-semibold text-zinc-900 dark:text-white">Email</p>
-                    <p className="text-zinc-600 dark:text-zinc-400">
-                      support@yourstore.com
+                    <p className="font-semibold">Email</p>
+                    <p className="text-muted-foreground">
+                      theravenius@gmail.com
                     </p>
                   </div>
                 </div>
 
-                <div className="flex items-start gap-3">
-                  <Phone className="h-6 w-6 text-amber-500 mt-1" />
+                <div className="flex gap-3">
+                  <Phone className="h-6 w-6 text-amber-500" />
                   <div>
-                    <p className="font-semibold text-zinc-900 dark:text-white">Phone</p>
-                    <p className="text-zinc-600 dark:text-zinc-400">+91 9876543210</p>
+                    <p className="font-semibold">Phone</p>
+                    <p className="text-muted-foreground">
+                      +91 76440 59445
+                    </p>
                   </div>
                 </div>
 
-                <div className="flex items-start gap-3">
-                  <MapPin className="h-6 w-6 text-amber-500 mt-1" />
+                <div className="flex gap-3">
+                  <MapPin className="h-6 w-6 text-amber-500" />
                   <div>
-                    <p className="font-semibold text-zinc-900 dark:text-white">Location</p>
-                    <p className="text-zinc-600 dark:text-zinc-400">
+                    <p className="font-semibold">Location</p>
+                    <p className="text-muted-foreground">
                       Katihar, Bihar — India
                     </p>
                   </div>
                 </div>
-
               </div>
 
-              {/* Contact Form */}
+              {/* FORM */}
               <div className="space-y-4">
-
                 <Input
                   placeholder="Your Name"
                   name="name"
@@ -116,7 +109,7 @@ export default function Contact() {
                 />
 
                 <Input
-                  placeholder="Email Address"
+                  placeholder="Your Email"
                   name="email"
                   value={form.email}
                   onChange={handleChange}
@@ -124,7 +117,7 @@ export default function Contact() {
                 />
 
                 <Input
-                  placeholder="Phone Number (optional)"
+                  placeholder="Phone (optional)"
                   name="phone"
                   value={form.phone}
                   onChange={handleChange}
@@ -132,22 +125,19 @@ export default function Contact() {
                 />
 
                 <Textarea
-                  placeholder="Your Message..."
+                  placeholder="Your message..."
                   name="message"
                   value={form.message}
                   onChange={handleChange}
-                  className="rounded-xl min-h-[120px]"
+                  className="min-h-[120px] rounded-xl"
                 />
 
                 <Button
                   onClick={sendMessage}
-                  disabled={loading}
-                  className="w-full h-12 rounded-full bg-zinc-900 text-white dark:bg-amber-500 dark:text-zinc-900 font-semibold hover:opacity-90"
+                  className="w-full h-12 rounded-full bg-zinc-900 text-white dark:bg-amber-500 dark:text-zinc-900 font-semibold"
                 >
-                  {loading && <Loader2 className="h-5 w-5 mr-2 animate-spin" />}
                   Send Message
                 </Button>
-
               </div>
 
             </div>

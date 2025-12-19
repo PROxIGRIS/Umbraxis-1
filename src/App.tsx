@@ -25,6 +25,7 @@ import Contact from "./pages/Contact";
 
 // Returns Page (NEW)
 import Returns from "./pages/Returns";
+import About from "./pages/About";
 
 // =====================
 // Legal Pages
@@ -87,6 +88,7 @@ function App() {
 
               {/* Returns & Refunds */}
               <Route path="/returns" element={<Returns />} />
+              <Route path="/about" element={<About />} />
 
               {/* =====================
                   Legal Pages

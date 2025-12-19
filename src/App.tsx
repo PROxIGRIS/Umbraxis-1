@@ -8,7 +8,9 @@ import { AppLoader } from "@/components/ui/AppLoader";
 
 import ScrollToTop from "@/components/ScrollToTop";
 
+// =====================
 // Customer Pages
+// =====================
 import Index from "./pages/Index";
 import Products from "./pages/Products";
 import ProductDetail from "./pages/ProductDetail";
@@ -18,14 +20,21 @@ import OrderConfirmation from "./pages/OrderConfirmation";
 import TrackOrder from "./pages/TrackOrder";
 import NotFound from "./pages/NotFound";
 
-// Contact Page (NEW)
+// Contact Page
 import Contact from "./pages/Contact";
 
+// Returns Page (NEW)
+import Returns from "./pages/Returns";
+
+// =====================
 // Legal Pages
+// =====================
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
 
+// =====================
 // Admin Pages
+// =====================
 import AdminLayout from "./pages/admin/AdminLayout";
 import AdminDashboard from "./pages/admin/Dashboard";
 import AdminProducts from "./pages/admin/AdminProducts";
@@ -33,14 +42,14 @@ import AdminCategories from "./pages/admin/AdminCategories";
 import AdminOrders from "./pages/admin/AdminOrders";
 import AdminLogin from "./pages/admin/AdminLogin";
 
-// Coupon Pages
+// Coupons
 import AdminCoupons from "./pages/admin/AdminCoupons";
 import AdminCreateCoupon from "./pages/admin/AdminCreateCoupon";
 
-// COD Security Settings Page
+// COD Security
 import { CODSecuritySettings } from "./pages/admin/CODSecuritySettings";
 
-// STOCK MANAGER PAGE
+// Stock Manager
 import StockManager from "./pages/admin/StockManager";
 
 const queryClient = new QueryClient();
@@ -59,28 +68,41 @@ function App() {
 
             <Routes>
 
-              {/* Customer Routes */}
+              {/* =====================
+                  Customer Routes
+              ====================== */}
               <Route path="/" element={<Index />} />
               <Route path="/products" element={<Products />} />
               <Route path="/product/:slug" element={<ProductDetail />} />
               <Route path="/cart" element={<Cart />} />
               <Route path="/checkout" element={<Checkout />} />
-              <Route path="/order-confirmation/:orderId" element={<OrderConfirmation />} />
+              <Route
+                path="/order-confirmation/:orderId"
+                element={<OrderConfirmation />}
+              />
               <Route path="/track-order" element={<TrackOrder />} />
 
-              {/* ⭐ NEW CONTACT PAGE */}
+              {/* Contact */}
               <Route path="/contact" element={<Contact />} />
 
-              {/* Legal Pages */}
+              {/* Returns & Refunds */}
+              <Route path="/returns" element={<Returns />} />
+
+              {/* =====================
+                  Legal Pages
+              ====================== */}
               <Route path="/privacy" element={<PrivacyPolicy />} />
               <Route path="/terms" element={<TermsOfService />} />
 
-              {/* Admin Login */}
+              {/* =====================
+                  Admin Auth
+              ====================== */}
               <Route path="/admin/login" element={<AdminLogin />} />
 
-              {/* Protected Admin Routes */}
+              {/* =====================
+                  Protected Admin Routes
+              ====================== */}
               <Route path="/admin" element={<AdminLayout />}>
-
                 <Route index element={<AdminDashboard />} />
                 <Route path="products" element={<AdminProducts />} />
                 <Route path="categories" element={<AdminCategories />} />
@@ -90,15 +112,16 @@ function App() {
                 <Route path="coupons" element={<AdminCoupons />} />
                 <Route path="coupons/new" element={<AdminCreateCoupon />} />
 
-                {/* COD Security Settings */}
+                {/* COD Security */}
                 <Route path="cod-security" element={<CODSecuritySettings />} />
 
                 {/* Stock Manager */}
                 <Route path="stock-manager" element={<StockManager />} />
-
               </Route>
 
-              {/* 404 */}
+              {/* =====================
+                  404
+              ====================== */}
               <Route path="*" element={<NotFound />} />
 
             </Routes>

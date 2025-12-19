@@ -920,10 +920,6 @@ const TERMS_SECTIONS: Section[] = [
               definition="The physical address provided by the Customer where the Products are to be delivered."
             />
             <DefinitionTerm
-              term="Force Majeure"
-              definition="Any event beyond reasonable control, including but not limited to acts of God, natural disasters, war, terrorism, riots, embargoes, acts of civil or military authorities, pandemics, epidemics, fire, floods, earthquakes, accidents, strikes, or shortages of transportation, facilities, fuel, energy, labor, or materials."
-            />
-            <DefinitionTerm
               term="Fraud"
               definition="Any intentional deception, misrepresentation, or concealment of material facts with the intent to deprive the Company of its property, services, or lawful rights, including but not limited to identity theft, payment fraud, return fraud, and abuse of promotional offers."
             />

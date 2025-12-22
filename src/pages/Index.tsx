@@ -453,7 +453,7 @@ export default function Index() {
                       </Button>
                     </div>
                     <p className="mt-3 text-primary-foreground/80">
-                      Get 30% off up to ₹30 on your first order
+                      Get 30% off up to ₹30 on your first order above ₹200
                     </p>
                     <p className="mt-2 text-sm text-primary-foreground/60">
                       You can use this code at checkout

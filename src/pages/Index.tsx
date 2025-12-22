@@ -10,6 +10,8 @@ import {
   ShieldCheck,
   Truck,
   Star,
+  Copy,
+  Check,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { Layout } from "@/components/layout/Layout";
@@ -69,6 +71,14 @@ export default function Index() {
   const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
 
+  // Newsletter state
+  const [newsletterEmail, setNewsletterEmail] = useState("");
+  const [isSubscribing, setIsSubscribing] = useState(false);
+  const [isSubscribed, setIsSubscribed] = useState(() => {
+    return localStorage.getItem("newsletter_subscribed") === "true";
+  });
+  const [couponCopied, setCouponCopied] = useState(false);
+
   const { data: categories = [], isLoading: categoriesLoading } = useCategories();
   const { data: featuredProducts = [], isLoading: productsLoading } = useFeaturedProducts();
 
@@ -86,6 +96,37 @@ export default function Index() {
     const q = searchQuery.trim();
     if (!q) return;
     navigate(`/products?search=${encodeURIComponent(q)}`);
+  };
+
+  const handleNewsletterSubscribe = async () => {
+    if (!newsletterEmail.trim()) return;
+    
+    setIsSubscribing(true);
+    
+    // Simulate a short loading state
+    await new Promise((resolve) => setTimeout(resolve, 800));
+    
+    setIsSubscribed(true);
+    localStorage.setItem("newsletter_subscribed", "true");
+    setIsSubscribing(false);
+  };
+
+  const handleCopyCoupon = async () => {
+    try {
+      await navigator.clipboard.writeText("WELCOME30");
+      setCouponCopied(true);
+      setTimeout(() => setCouponCopied(false), 2000);
+    } catch {
+      // Fallback for browsers that don't support clipboard API
+      const textArea = document.createElement("textarea");
+      textArea.value = "WELCOME30";
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand("copy");
+      document.body.removeChild(textArea);
+      setCouponCopied(true);
+      setTimeout(() => setCouponCopied(false), 2000);
+    }
   };
 
   return (
@@ -341,7 +382,7 @@ export default function Index() {
         </div>
       </section>
 
-      {/* CTA BANNER */}
+      {/* CTA BANNER / NEWSLETTER */}
       <section className="py-16 md:py-20">
         <div className="container">
           <motion.div
@@ -354,22 +395,72 @@ export default function Index() {
             <div className="absolute -top-20 -right-20 h-60 w-60 rounded-full bg-brand/20 blur-3xl" />
 
             <div className="relative z-10 max-w-xl">
-              <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-primary-foreground">
-                Get 20% Off Your First Order
-              </h2>
-              <p className="mt-4 text-primary-foreground/80">
-                Subscribe to our newsletter and receive exclusive offers, new arrivals, and more.
-              </p>
-              <div className="mt-6 flex flex-col sm:flex-row gap-3">
-                <Input
-                  type="email"
-                  placeholder="Enter your email"
-                  className="h-12 bg-primary-foreground/10 border-primary-foreground/20 text-primary-foreground placeholder:text-primary-foreground/60"
-                />
-                <Button className="h-12 px-8 bg-primary-foreground text-primary hover:bg-primary-foreground/90">
-                  Subscribe
-                </Button>
-              </div>
+              {!isSubscribed ? (
+                <>
+                  <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-primary-foreground">
+                    Get 30% Off Your First Order
+                  </h2>
+                  <p className="mt-4 text-primary-foreground/80">
+                    Subscribe to our newsletter and receive exclusive offers, new arrivals, and more.
+                  </p>
+                  <div className="mt-6 flex flex-col sm:flex-row gap-3">
+                    <Input
+                      type="email"
+                      placeholder="Enter your email"
+                      value={newsletterEmail}
+                      onChange={(e) => setNewsletterEmail(e.target.value)}
+                      disabled={isSubscribing}
+                      className="h-12 bg-primary-foreground/10 border-primary-foreground/20 text-primary-foreground placeholder:text-primary-foreground/60 disabled:opacity-70"
+                    />
+                    <Button 
+                      onClick={handleNewsletterSubscribe}
+                      disabled={isSubscribing || !newsletterEmail.trim()}
+                      className="h-12 px-8 bg-primary-foreground text-primary hover:bg-primary-foreground/90 disabled:opacity-70"
+                    >
+                      {isSubscribing ? "Subscribing..." : "Subscribe"}
+                    </Button>
+                  </div>
+                </>
+              ) : (
+                <div className="space-y-6">
+                  <div>
+                    <p className="text-sm font-medium text-primary-foreground/80 uppercase tracking-wide">
+                      You're subscribed
+                    </p>
+                    <h2 className="mt-2 text-2xl md:text-3xl lg:text-4xl font-bold text-primary-foreground">
+                      Here's Your Welcome Gift
+                    </h2>
+                  </div>
+                  
+                  <div className="rounded-2xl bg-primary-foreground/10 border border-primary-foreground/20 p-6">
+                    <p className="text-sm text-primary-foreground/70 mb-2">Your coupon code</p>
+                    <div className="flex items-center gap-3">
+                      <span className="text-3xl md:text-4xl font-bold tracking-wider text-primary-foreground">
+                        WELCOME30
+                      </span>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={handleCopyCoupon}
+                        className="h-10 w-10 text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary-foreground/10"
+                        aria-label="Copy coupon code"
+                      >
+                        {couponCopied ? (
+                          <Check className="h-5 w-5" />
+                        ) : (
+                          <Copy className="h-5 w-5" />
+                        )}
+                      </Button>
+                    </div>
+                    <p className="mt-3 text-primary-foreground/80">
+                      Get 30% off up to ₹30 on your first order
+                    </p>
+                    <p className="mt-2 text-sm text-primary-foreground/60">
+                      You can use this code at checkout
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
           </motion.div>
         </div>
@@ -410,4 +501,4 @@ function ValueCard({
       <p className="mt-1 text-sm text-muted-foreground">{description}</p>
     </motion.div>
   );
-}
+                }

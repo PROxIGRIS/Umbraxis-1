@@ -12,6 +12,7 @@ import {
   Star,
   Copy,
   Check,
+  Lock,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { Layout } from "@/components/layout/Layout";
@@ -21,6 +22,7 @@ import { ProductCard } from "@/components/products/ProductCard";
 import { CategoryCard } from "@/components/products/CategoryCard";
 import { useCategories } from "@/hooks/useCategories";
 import { useFeaturedProducts } from "@/hooks/useProducts";
+import { useCart } from "@/contexts/CartContext";
 import { Skeleton } from "@/components/ui/skeleton";
 
 /* ---------- IMAGE SANITIZER ---------- */
@@ -67,6 +69,8 @@ const scaleIn = {
   },
 };
 
+const MIN_UNLOCK_AMOUNT = 200;
+
 export default function Index() {
   const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
@@ -78,6 +82,11 @@ export default function Index() {
     return localStorage.getItem("newsletter_subscribed") === "true";
   });
   const [couponCopied, setCouponCopied] = useState(false);
+
+  // Cart state for coupon unlock
+  const { subtotal } = useCart();
+  const isCouponUnlocked = subtotal >= MIN_UNLOCK_AMOUNT;
+  const amountRemaining = MIN_UNLOCK_AMOUNT - subtotal;
 
   const { data: categories = [], isLoading: categoriesLoading } = useCategories();
   const { data: featuredProducts = [], isLoading: productsLoading } = useFeaturedProducts();
@@ -112,6 +121,7 @@ export default function Index() {
   };
 
   const handleCopyCoupon = async () => {
+    if (!isCouponUnlocked) return;
     try {
       await navigator.clipboard.writeText("WELCOME30");
       setCouponCopied(true);
@@ -341,7 +351,7 @@ export default function Index() {
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
               {topProducts.map((p, idx) => (
-                <ProductCard key={p.id} product={p} index={idx} />
+                <ProductCard key={p.id} product={p} />
               ))}
             </div>
           )}
@@ -428,36 +438,92 @@ export default function Index() {
                       You're subscribed
                     </p>
                     <h2 className="mt-2 text-2xl md:text-3xl lg:text-4xl font-bold text-primary-foreground">
-                      Here's Your Welcome Gift
+                      {isCouponUnlocked ? "Here's Your Welcome Gift" : "Unlock Your Welcome Gift"}
                     </h2>
                   </div>
                   
-                  <div className="rounded-2xl bg-primary-foreground/10 border border-primary-foreground/20 p-6">
-                    <p className="text-sm text-primary-foreground/70 mb-2">Your coupon code</p>
-                    <div className="flex items-center gap-3">
-                      <span className="text-3xl md:text-4xl font-bold tracking-wider text-primary-foreground">
-                        WELCOME30
-                      </span>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={handleCopyCoupon}
-                        className="h-10 w-10 text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary-foreground/10"
-                        aria-label="Copy coupon code"
-                      >
-                        {couponCopied ? (
-                          <Check className="h-5 w-5" />
-                        ) : (
-                          <Copy className="h-5 w-5" />
-                        )}
-                      </Button>
-                    </div>
-                    <p className="mt-3 text-primary-foreground/80">
-                      Get 30% off up to ₹30 on your first order above ₹200
-                    </p>
-                    <p className="mt-2 text-sm text-primary-foreground/60">
-                      You can use this code at checkout
-                    </p>
+                  <div className={`rounded-2xl border p-6 transition-all duration-500 ${
+                    isCouponUnlocked 
+                      ? "bg-primary-foreground/10 border-primary-foreground/20" 
+                      : "bg-primary-foreground/5 border-primary-foreground/10"
+                  }`}>
+                    {isCouponUnlocked ? (
+                      <>
+                        <p className="text-sm text-primary-foreground/70 mb-2">Your coupon code</p>
+                        <div className="flex items-center gap-3">
+                          <span className="text-3xl md:text-4xl font-bold tracking-wider text-primary-foreground">
+                            WELCOME30
+                          </span>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={handleCopyCoupon}
+                            className="h-10 w-10 text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary-foreground/10"
+                            aria-label="Copy coupon code"
+                          >
+                            {couponCopied ? (
+                              <Check className="h-5 w-5" />
+                            ) : (
+                              <Copy className="h-5 w-5" />
+                            )}
+                          </Button>
+                        </div>
+                        <p className="mt-3 text-primary-foreground/80">
+                          Get 30% off up to ₹30 on your first order above ₹200
+                        </p>
+                        <p className="mt-2 text-sm text-primary-foreground/60">
+                          You can use this code at checkout
+                        </p>
+                      </>
+                    ) : (
+                      <>
+                        <div className="flex items-center gap-3 mb-4">
+                          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary-foreground/10">
+                            <Lock className="h-6 w-6 text-primary-foreground/70" />
+                          </div>
+                          <div>
+                            <p className="text-sm text-primary-foreground/70">Coupon locked</p>
+                            <p className="text-lg font-semibold text-primary-foreground">
+                              Add ₹{amountRemaining.toFixed(0)} more to unlock
+                            </p>
+                          </div>
+                        </div>
+                        
+                        {/* Progress bar */}
+                        <div className="mb-4">
+                          <div className="h-2 rounded-full bg-primary-foreground/10 overflow-hidden">
+                            <motion.div
+                              className="h-full bg-primary-foreground/50 rounded-full"
+                              initial={{ width: 0 }}
+                              animate={{ width: `${Math.min((subtotal / MIN_UNLOCK_AMOUNT) * 100, 100)}%` }}
+                              transition={{ duration: 0.5 }}
+                            />
+                          </div>
+                          <div className="flex justify-between mt-2 text-xs text-primary-foreground/60">
+                            <span>₹{subtotal.toFixed(0)} in cart</span>
+                            <span>₹{MIN_UNLOCK_AMOUNT} to unlock</span>
+                          </div>
+                        </div>
+                        
+                        <div className="flex items-center gap-2 text-3xl md:text-4xl font-bold tracking-wider text-primary-foreground/30">
+                          <span className="blur-md select-none">••••••••••</span>
+                          <Lock className="h-6 w-6" />
+                        </div>
+                        <p className="mt-3 text-primary-foreground/60">
+                          Add items worth ₹{amountRemaining.toFixed(0)} to your cart to unlock 30% off
+                        </p>
+                        
+                        <Button 
+                          asChild
+                          className="mt-4 bg-primary-foreground text-primary hover:bg-primary-foreground/90"
+                        >
+                          <Link to="/products">
+                            Browse Products
+                            <ArrowRight className="ml-2 h-4 w-4" />
+                          </Link>
+                        </Button>
+                      </>
+                    )}
                   </div>
                 </div>
               )}
@@ -501,4 +567,4 @@ function ValueCard({
       <p className="mt-1 text-sm text-muted-foreground">{description}</p>
     </motion.div>
   );
-                }
+}

@@ -408,7 +408,7 @@ export default function Index() {
               {!isSubscribed ? (
                 <>
                   <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-primary-foreground">
-                    Get 30% Off Your First Order
+                    Get 30 rupees Off Your First Order
                   </h2>
                   <p className="mt-4 text-primary-foreground/80">
                     Subscribe to our newsletter and receive exclusive offers, new arrivals, and more.
@@ -469,7 +469,7 @@ export default function Index() {
                           </Button>
                         </div>
                         <p className="mt-3 text-primary-foreground/80">
-                          Get 30% off up to ₹30 on your first order above ₹200
+                          Get 30 rupees off up to ₹30 on your first order above ₹200
                         </p>
                         <p className="mt-2 text-sm text-primary-foreground/60">
                           You can use this code at checkout
@@ -510,7 +510,7 @@ export default function Index() {
                           <Lock className="h-6 w-6" />
                         </div>
                         <p className="mt-3 text-primary-foreground/60">
-                          Add items worth ₹{amountRemaining.toFixed(0)} to your cart to unlock 30% off
+                          Add items worth ₹{amountRemaining.toFixed(0)} to your cart to unlock 30 rupees off
                         </p>
                         
                         <Button 

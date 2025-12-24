@@ -42,7 +42,7 @@ export const AppLoader = memo(function AppLoader() {
             transition={{ delay: 0.1 }}
             className="text-sm text-muted-foreground font-medium mt-2"
           >
-            Loading fresh items...
+            Loading...
           </motion.p>
         </motion.div>
       )}

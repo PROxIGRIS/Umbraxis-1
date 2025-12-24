@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   ArrowRight,
@@ -13,8 +13,9 @@ import {
   Copy,
   Check,
   Lock,
+  CheckCircle2,
 } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -71,8 +72,41 @@ const scaleIn = {
 
 const MIN_UNLOCK_AMOUNT = 200;
 
+/* ---------- INTENT-AWARE HERO COPY ---------- */
+function useHeroCopy(hasItemsInCart: boolean) {
+  const [hasSearched] = useState(() => {
+    return sessionStorage.getItem("has_searched") === "true";
+  });
+
+  if (hasItemsInCart) {
+    return {
+      headline: <>You're on Your Way.</>,
+      subline: "Continue shopping to complete your collection."
+    };
+  }
+  
+  if (hasSearched) {
+    return {
+      headline: <>Welcome Back.</>,
+      subline: "Pick up where you left off."
+    };
+  }
+
+  return {
+    headline: (
+      <>
+        Elevate Your
+        <br />
+        <span className="text-gradient">Everyday Style.</span>
+      </>
+    ),
+    subline: "Premium winter wear and essentials. Crafted for comfort, designed for you."
+  };
+}
+
 export default function Index() {
   const [searchQuery, setSearchQuery] = useState("");
+  const [searchFocused, setSearchFocused] = useState(false);
   const navigate = useNavigate();
 
   // Newsletter state
@@ -81,12 +115,31 @@ export default function Index() {
   const [isSubscribed, setIsSubscribed] = useState(() => {
     return localStorage.getItem("newsletter_subscribed") === "true";
   });
+  const [showSubscribeConfirm, setShowSubscribeConfirm] = useState(false);
   const [couponCopied, setCouponCopied] = useState(false);
+  
+  // Track if coupon was just unlocked for the glow effect
+  const [justUnlocked, setJustUnlocked] = useState(false);
 
   // Cart state for coupon unlock
-  const { subtotal } = useCart();
+  const { subtotal, totalItems } = useCart();
   const isCouponUnlocked = subtotal >= MIN_UNLOCK_AMOUNT;
   const amountRemaining = MIN_UNLOCK_AMOUNT - subtotal;
+  const progressPercent = Math.min((subtotal / MIN_UNLOCK_AMOUNT) * 100, 100);
+
+  // Intent-aware hero copy
+  const heroCopy = useHeroCopy(totalItems > 0);
+
+  // Track coupon unlock moment for delight animation
+  const [prevUnlocked, setPrevUnlocked] = useState(isCouponUnlocked);
+  useEffect(() => {
+    if (isCouponUnlocked && !prevUnlocked) {
+      setJustUnlocked(true);
+      const timer = setTimeout(() => setJustUnlocked(false), 2000);
+      return () => clearTimeout(timer);
+    }
+    setPrevUnlocked(isCouponUnlocked);
+  }, [isCouponUnlocked, prevUnlocked]);
 
   const { data: categories = [], isLoading: categoriesLoading } = useCategories();
   const { data: featuredProducts = [], isLoading: productsLoading } = useFeaturedProducts();
@@ -104,6 +157,7 @@ export default function Index() {
     e?.preventDefault();
     const q = searchQuery.trim();
     if (!q) return;
+    sessionStorage.setItem("has_searched", "true");
     navigate(`/products?search=${encodeURIComponent(q)}`);
   };
 
@@ -111,13 +165,15 @@ export default function Index() {
     if (!newsletterEmail.trim()) return;
     
     setIsSubscribing(true);
-    
-    // Simulate a short loading state
     await new Promise((resolve) => setTimeout(resolve, 800));
     
     setIsSubscribed(true);
+    setShowSubscribeConfirm(true);
     localStorage.setItem("newsletter_subscribed", "true");
     setIsSubscribing(false);
+    
+    // Hide confirmation after 3s
+    setTimeout(() => setShowSubscribeConfirm(false), 3000);
   };
 
   const handleCopyCoupon = async () => {
@@ -127,7 +183,6 @@ export default function Index() {
       setCouponCopied(true);
       setTimeout(() => setCouponCopied(false), 2000);
     } catch {
-      // Fallback for browsers that don't support clipboard API
       const textArea = document.createElement("textarea");
       textArea.value = "WELCOME30";
       document.body.appendChild(textArea);
@@ -167,19 +222,17 @@ export default function Index() {
                 variants={fadeInUp}
                 className="mt-6 text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold tracking-tight text-foreground"
               >
-                Elevate Your
-                <br />
-                <span className="text-gradient">Everyday Style.</span>
+                {heroCopy.headline}
               </motion.h1>
 
               <motion.p
                 variants={fadeInUp}
                 className="mt-6 text-lg md:text-xl text-muted-foreground max-w-lg"
               >
-                Premium winter wear and essentials. Crafted for comfort, designed for you.
+                {heroCopy.subline}
               </motion.p>
 
-              {/* Search Form */}
+              {/* Search Form with micro-feedback */}
               <motion.form
                 variants={fadeInUp}
                 onSubmit={handleSearch}
@@ -191,6 +244,8 @@ export default function Index() {
                     type="search"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
+                    onFocus={() => setSearchFocused(true)}
+                    onBlur={() => setSearchFocused(false)}
                     placeholder="Search for products..."
                     className="h-14 pl-12 pr-32 border-0 bg-transparent text-base placeholder:text-muted-foreground focus-visible:ring-0"
                   />
@@ -201,9 +256,22 @@ export default function Index() {
                     Explore
                   </Button>
                 </div>
+                {/* Search helper text */}
+                <AnimatePresence>
+                  {searchFocused && searchQuery.length > 0 && (
+                    <motion.p
+                      initial={{ opacity: 0, y: -4 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -4 }}
+                      className="mt-2 text-xs text-muted-foreground pl-1"
+                    >
+                      Press Enter to search
+                    </motion.p>
+                  )}
+                </AnimatePresence>
               </motion.form>
 
-              {/* Feature Pills */}
+              {/* Light trust cues near hero */}
               <motion.div
                 variants={fadeInUp}
                 className="mt-8 flex flex-wrap gap-2"
@@ -259,8 +327,8 @@ export default function Index() {
                       <Star className="h-5 w-5 text-highlight fill-highlight" />
                     </div>
                     <div>
-                      <p className="text-sm font-semibold text-foreground">Highly Rated for affordability</p>
-                      <p className="text-xs text-muted-foreground">Affordable yet premium</p>
+                      <p className="text-sm font-semibold text-foreground">Quality First</p>
+                      <p className="text-xs text-muted-foreground">Handpicked items</p>
                     </div>
                   </div>
                 </motion.div>
@@ -312,6 +380,13 @@ export default function Index() {
         </div>
       </section>
 
+      {/* FLOW CONNECTOR: Categories → Products */}
+      <div className="container">
+        <p className="text-sm text-muted-foreground text-center py-2">
+          Or explore what's popular right now
+        </p>
+      </div>
+
       {/* TRENDING PRODUCTS */}
       <section className="py-16 md:py-20 bg-secondary/30">
         <div className="container">
@@ -350,7 +425,7 @@ export default function Index() {
             </div>
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-              {topProducts.map((p, idx) => (
+              {topProducts.map((p) => (
                 <ProductCard key={p.id} product={p} />
               ))}
             </div>
@@ -358,7 +433,14 @@ export default function Index() {
         </div>
       </section>
 
-      {/* VALUE PROPOSITIONS */}
+      {/* FLOW CONNECTOR: Products → Value Props */}
+      <div className="container">
+        <p className="text-sm text-muted-foreground text-center py-2">
+          Why shop with us
+        </p>
+      </div>
+
+      {/* VALUE PROPOSITIONS - Stronger trust cues */}
       <section className="py-16 md:py-20 bg-background">
         <div className="container">
           <motion.div
@@ -381,7 +463,7 @@ export default function Index() {
             <ValueCard
               icon={<Tag className="h-6 w-6" />}
               title="Best Prices"
-              description="Guaranteed lowest prices"
+              description="Guaranteed value"
             />
             <ValueCard
               icon={<Star className="h-6 w-6" />}
@@ -408,10 +490,10 @@ export default function Index() {
               {!isSubscribed ? (
                 <>
                   <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-primary-foreground">
-                    Get 30 rupees Off Your First Order
+                    Get ₹30 Off Your First Order
                   </h2>
                   <p className="mt-4 text-primary-foreground/80">
-                    Subscribe to our newsletter and receive exclusive offers, new arrivals, and more.
+                    Subscribe for exclusive offers and new arrivals.
                   </p>
                   <div className="mt-6 flex flex-col sm:flex-row gap-3">
                     <Input
@@ -430,6 +512,20 @@ export default function Index() {
                       {isSubscribing ? "Subscribing..." : "Subscribe"}
                     </Button>
                   </div>
+                  {/* Inline subscription confirmation */}
+                  <AnimatePresence>
+                    {showSubscribeConfirm && (
+                      <motion.p
+                        initial={{ opacity: 0, y: 4 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0 }}
+                        className="mt-3 text-sm text-primary-foreground/80 flex items-center gap-2"
+                      >
+                        <CheckCircle2 className="h-4 w-4" />
+                        You're in. Check your inbox.
+                      </motion.p>
+                    )}
+                  </AnimatePresence>
                 </>
               ) : (
                 <div className="space-y-6">
@@ -438,18 +534,22 @@ export default function Index() {
                       You're subscribed
                     </p>
                     <h2 className="mt-2 text-2xl md:text-3xl lg:text-4xl font-bold text-primary-foreground">
-                      {isCouponUnlocked ? "Here's Your Welcome Gift" : "Unlock Your Welcome Gift"}
+                      {isCouponUnlocked ? "Your Welcome Gift" : "Unlock Your Gift"}
                     </h2>
                   </div>
                   
+                  {/* Coupon card with earned reward framing + delight glow */}
                   <div className={`rounded-2xl border p-6 transition-all duration-500 ${
                     isCouponUnlocked 
                       ? "bg-primary-foreground/10 border-primary-foreground/20" 
                       : "bg-primary-foreground/5 border-primary-foreground/10"
-                  }`}>
+                  } ${justUnlocked ? "ring-2 ring-primary-foreground/40 ring-offset-2 ring-offset-primary" : ""}`}>
                     {isCouponUnlocked ? (
                       <>
-                        <p className="text-sm text-primary-foreground/70 mb-2">Your coupon code</p>
+                        {/* Earned reward framing */}
+                        <p className="text-sm text-primary-foreground/70 mb-2">
+                          Unlocked with your cart progress
+                        </p>
                         <div className="flex items-center gap-3">
                           <span className="text-3xl md:text-4xl font-bold tracking-wider text-primary-foreground">
                             WELCOME30
@@ -468,11 +568,24 @@ export default function Index() {
                             )}
                           </Button>
                         </div>
+                        {/* Calm confirmation */}
+                        <AnimatePresence>
+                          {couponCopied && (
+                            <motion.p
+                              initial={{ opacity: 0 }}
+                              animate={{ opacity: 1 }}
+                              exit={{ opacity: 0 }}
+                              className="mt-2 text-sm text-primary-foreground/70"
+                            >
+                              Copied — savings applied at checkout
+                            </motion.p>
+                          )}
+                        </AnimatePresence>
                         <p className="mt-3 text-primary-foreground/80">
-                          Get 30 rupees off up to ₹30 on your first order above ₹200
+                          ₹30 off on orders above ₹200
                         </p>
-                        <p className="mt-2 text-sm text-primary-foreground/60">
-                          You can use this code at checkout
+                        <p className="mt-1 text-sm text-primary-foreground/60">
+                          Applied automatically at checkout
                         </p>
                       </>
                     ) : (
@@ -488,15 +601,24 @@ export default function Index() {
                             </p>
                           </div>
                         </div>
-                        
-                        {/* Progress bar */}
+                        {/* Progress bar - THE ONE DELIGHT ANIMATION */}
                         <div className="mb-4">
                           <div className="h-2 rounded-full bg-primary-foreground/10 overflow-hidden">
                             <motion.div
-                              className="h-full bg-primary-foreground/50 rounded-full"
+                              className="h-full rounded-full"
                               initial={{ width: 0 }}
-                              animate={{ width: `${Math.min((subtotal / MIN_UNLOCK_AMOUNT) * 100, 100)}%` }}
-                              transition={{ duration: 0.5 }}
+                              animate={{ 
+                                width: `${progressPercent}%`,
+                                backgroundColor: progressPercent > 75 
+                                  ? "hsl(var(--accent))" 
+                                  : "hsl(0 0% 100% / 0.5)"
+                              }}
+                              transition={{ duration: 0.6, ease: "easeOut" }}
+                              style={{
+                                boxShadow: progressPercent > 75 
+                                  ? "0 0 12px hsl(var(--accent) / 0.6)" 
+                                  : "none"
+                              }}
                             />
                           </div>
                           <div className="flex justify-between mt-2 text-xs text-primary-foreground/60">
@@ -510,7 +632,7 @@ export default function Index() {
                           <Lock className="h-6 w-6" />
                         </div>
                         <p className="mt-3 text-primary-foreground/60">
-                          Add items worth ₹{amountRemaining.toFixed(0)} to your cart to unlock 30 rupees off
+                          Add ₹{amountRemaining.toFixed(0)} to your cart to unlock
                         </p>
                         
                         <Button 

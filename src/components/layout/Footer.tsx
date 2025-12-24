@@ -186,59 +186,6 @@ const Footer = () => {
             </div>
           </div>
 
-          {/* UMBRAXIS CARD - Style matched to dark mode */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="mt-16 mb-12"
-          >
-            <div className="relative bg-zinc-800/50 border-2 border-zinc-700 rounded-3xl p-10 overflow-hidden group hover:shadow-2xl hover:shadow-zinc-700/50 transition-all duration-500">
-
-              {/* Lottie animation area - Sparkles naturally fit amber theme */}
-              <div className="absolute top-4 right-4 w-20 h-20 opacity-50">
-                <Lottie animationData={sparkleAnimation} loop />
-              </div>
-              <div className="absolute bottom-4 left-4 w-16 h-16 opacity-40">
-                <Lottie animationData={sparkleAnimation} loop />
-              </div>
-
-              <div className="relative z-10 text-center">
-                <motion.h2
-                  initial={{ opacity: 0 }}
-                  whileInView={{ opacity: 1 }}
-                  transition={{ delay: 0.2 }}
-                  className="text-4xl md:text-5xl font-bold mb-4"
-                >
-                  Crafted by <span className="text-amber-500">Umbraxis</span>
-                </motion.h2>
-
-                <motion.p
-                  initial={{ opacity: 0 }}
-                  whileInView={{ opacity: 1 }}
-                  transition={{ delay: 0.3 }}
-                  className="text-white/70 text-lg mb-6"
-                >
-                  Premium digital craftsmanship for modern brands
-                </motion.p>
-
-                <motion.a
-                  href="https://umbraxis.vercel.app"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  // Button style matching the primary CTA
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-amber-500 text-zinc-900 rounded-full font-semibold hover:shadow-lg hover:shadow-amber-500/30 transition-all"
-                >
-                  Visit Umbraxis
-                  <ExternalLink className="w-4 h-4" />
-                </motion.a>
-              </div>
-            </div>
-          </motion.div>
-
           {/* BOTTOM STRIP */}
           <div className="pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-white/60 text-sm">

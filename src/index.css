@@ -1,141 +1,130 @@
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* ===============================
+   BASE THEME VARIABLES
+   =============================== */
 @layer base {
   :root {
-    /* RAVENIUS CORE – Editorial, Fashion, Premium */
-    --background: 0 0% 98%;
-    --foreground: 220 15% 10%;
+    /* BACKGROUND & TEXT */
+    --background: 36 33% 97%;          /* warm ivory */
+    --foreground: 25 15% 12%;          /* soft ink black */
 
-    --card: 0 0% 100%;
-    --card-foreground: 220 15% 12%;
+    --card: 36 30% 99%;
+    --card-foreground: 25 15% 14%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 220 15% 12%;
+    --popover: 36 30% 99%;
+    --popover-foreground: 25 15% 14%;
 
-    /* Ink Black */
-    --primary: 220 15% 10%;
-    --primary-foreground: 0 0% 100%;
+    /* PRIMARY (INK BLACK) */
+    --primary: 25 15% 12%;
+    --primary-foreground: 36 33% 97%;
 
-    /* Soft Ivory */
-    --secondary: 40 30% 94%;
-    --secondary-foreground: 220 15% 14%;
+    /* SECONDARY (CREAM / SAND) */
+    --secondary: 38 30% 92%;
+    --secondary-foreground: 25 15% 16%;
 
-    --muted: 220 10% 90%;
-    --muted-foreground: 220 10% 40%;
+    /* MUTED */
+    --muted: 38 20% 88%;
+    --muted-foreground: 25 10% 40%;
 
-    /* Muted Gold Accent */
-    --accent: 38 60% 52%;
-    --accent-foreground: 220 15% 10%;
+    /* ACCENT (ANTIQUE GOLD) */
+    --accent: 38 45% 48%;
+    --accent-foreground: 25 15% 12%;
 
-    --destructive: 0 70% 50%;
-    --destructive-foreground: 0 0% 100%;
+    /* STATUS */
+    --destructive: 0 60% 45%;
+    --destructive-foreground: 36 33% 97%;
 
-    --border: 220 10% 85%;
-    --input: 220 10% 88%;
-    --ring: 38 60% 52%;
+    --success: 145 45% 38%;
+    --warning: 38 55% 50%;
+    --info: 210 60% 55%;
 
-    --radius: 1rem;
+    /* BORDERS & INPUTS */
+    --border: 38 20% 85%;
+    --input: 38 20% 90%;
+    --ring: 38 45% 48%;
 
-    /* Status */
-    --success: 145 60% 40%;
-    --warning: 38 80% 55%;
-    --info: 210 80% 55%;
+    --radius: 1.25rem;
 
-    /* Fashion Gradients */
+    /* GRADIENTS – VERY SUBTLE */
     --gradient-hero: linear-gradient(
-      135deg,
-      hsl(220 15% 10%) 0%,
-      hsl(220 20% 18%) 50%,
-      hsl(220 15% 8%) 100%
+      180deg,
+      hsl(36 33% 98%) 0%,
+      hsl(36 28% 94%) 100%
     );
 
     --gradient-card: linear-gradient(
       180deg,
-      hsl(0 0% 100%) 0%,
-      hsl(0 0% 96%) 100%
+      hsl(36 30% 100%) 0%,
+      hsl(36 25% 96%) 100%
     );
 
     --gradient-accent: linear-gradient(
       135deg,
-      hsl(38 60% 52%) 0%,
-      hsl(42 70% 48%) 100%
+      hsl(38 45% 48%) 0%,
+      hsl(42 40% 44%) 100%
     );
 
     --gradient-mesh:
-      radial-gradient(at 40% 20%, hsl(220 20% 95%) 0px, transparent 50%),
-      radial-gradient(at 80% 0%, hsl(38 60% 95%) 0px, transparent 50%),
-      radial-gradient(at 0% 50%, hsl(220 20% 92%) 0px, transparent 50%);
+      radial-gradient(at 30% 20%, hsl(38 40% 96%) 0px, transparent 60%),
+      radial-gradient(at 80% 0%, hsl(42 45% 92%) 0px, transparent 55%);
 
-    /* Shadows – clean & editorial */
-    --shadow-sm: 0 1px 2px hsl(220 15% 10% / 0.04);
-    --shadow-md: 0 6px 16px hsl(220 15% 10% / 0.08);
-    --shadow-lg: 0 12px 32px hsl(220 15% 10% / 0.12);
-    --shadow-xl: 0 24px 56px hsl(220 15% 10% / 0.16);
-    --shadow-float: 0 20px 40px hsl(220 15% 10% / 0.14);
+    /* SHADOWS – SOFT, FABRIC-LIKE */
+    --shadow-sm: 0 1px 2px hsl(25 15% 12% / 0.04);
+    --shadow-md: 0 8px 20px hsl(25 15% 12% / 0.07);
+    --shadow-lg: 0 16px 40px hsl(25 15% 12% / 0.10);
+    --shadow-xl: 0 30px 70px hsl(25 15% 12% / 0.12);
+    --shadow-float: 0 24px 48px hsl(25 15% 12% / 0.10);
 
-    /* Sidebar */
-    --sidebar-background: 0 0% 100%;
-    --sidebar-foreground: 220 15% 10%;
-    --sidebar-primary: 220 15% 10%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 40 30% 94%;
-    --sidebar-accent-foreground: 220 15% 12%;
-    --sidebar-border: 220 10% 88%;
-    --sidebar-ring: 38 60% 52%;
+    /* SIDEBAR */
+    --sidebar-background: 36 30% 99%;
+    --sidebar-foreground: 25 15% 12%;
+    --sidebar-primary: 25 15% 12%;
+    --sidebar-primary-foreground: 36 33% 97%;
+    --sidebar-accent: 38 30% 92%;
+    --sidebar-accent-foreground: 25 15% 14%;
+    --sidebar-border: 38 20% 88%;
+    --sidebar-ring: 38 45% 48%;
   }
 
+  /* ===============================
+     DARK MODE (OPTIONAL, MUTED)
+     =============================== */
   .dark {
-    --background: 220 20% 6%;
-    --foreground: 0 0% 96%;
+    --background: 25 20% 8%;
+    --foreground: 36 33% 96%;
 
-    --card: 220 18% 10%;
-    --card-foreground: 0 0% 96%;
+    --card: 25 18% 12%;
+    --card-foreground: 36 33% 96%;
 
-    --popover: 220 18% 10%;
-    --popover-foreground: 0 0% 96%;
+    --popover: 25 18% 12%;
+    --popover-foreground: 36 33% 96%;
 
-    --primary: 0 0% 96%;
-    --primary-foreground: 220 20% 6%;
+    --primary: 36 33% 96%;
+    --primary-foreground: 25 20% 8%;
 
-    --secondary: 220 15% 14%;
-    --secondary-foreground: 0 0% 96%;
+    --secondary: 25 15% 18%;
+    --secondary-foreground: 36 33% 96%;
 
-    --muted: 220 15% 18%;
-    --muted-foreground: 220 10% 60%;
+    --muted: 25 15% 20%;
+    --muted-foreground: 38 10% 65%;
 
-    --accent: 38 60% 55%;
-    --accent-foreground: 220 20% 6%;
+    --accent: 38 45% 55%;
+    --accent-foreground: 25 20% 8%;
 
-    --border: 220 15% 18%;
-    --input: 220 15% 18%;
-    --ring: 38 60% 55%;
-
-    --gradient-hero: linear-gradient(
-      135deg,
-      hsl(220 20% 6%) 0%,
-      hsl(220 20% 12%) 50%,
-      hsl(220 20% 5%) 100%
-    );
-
-    --gradient-mesh:
-      radial-gradient(at 40% 20%, hsl(220 20% 12%) 0px, transparent 50%),
-      radial-gradient(at 80% 0%, hsl(38 60% 18%) 0px, transparent 50%);
-
-    --sidebar-background: 220 18% 8%;
-    --sidebar-foreground: 0 0% 96%;
-    --sidebar-primary: 0 0% 96%;
-    --sidebar-primary-foreground: 220 20% 6%;
-    --sidebar-accent: 220 15% 14%;
-    --sidebar-accent-foreground: 0 0% 96%;
-    --sidebar-border: 220 15% 16%;
-    --sidebar-ring: 38 60% 55%;
+    --border: 25 15% 22%;
+    --input: 25 15% 22%;
+    --ring: 38 45% 55%;
   }
 }
 
+/* ===============================
+   BASE STYLES
+   =============================== */
 @layer base {
   * {
     @apply border-border;
@@ -148,10 +137,13 @@
 
   h1, h2, h3, h4, h5, h6 {
     font-family: 'Space Grotesk', system-ui, sans-serif;
-    @apply font-semibold tracking-tight;
+    @apply font-medium tracking-tight;
   }
 }
 
+/* ===============================
+   UTILITIES
+   =============================== */
 @layer utilities {
   .gradient-hero {
     background: var(--gradient-hero);
@@ -174,11 +166,11 @@
   }
 
   .glass {
-    @apply bg-background/70 backdrop-blur-xl border border-border/50;
+    @apply bg-background/80 backdrop-blur-xl border border-border/40;
   }
 
   .glass-card {
-    @apply bg-card/80 backdrop-blur-lg border border-border/40 shadow-lg;
+    @apply bg-card/85 backdrop-blur-lg border border-border/30 shadow-md;
   }
 
   .text-gradient {
@@ -190,23 +182,29 @@
   }
 }
 
-/* Animations */
+/* ===============================
+   ANIMATIONS
+   =============================== */
 @keyframes float {
   0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
+  50% { transform: translateY(-8px); }
 }
 
-/* Scrollbar – subtle */
+/* ===============================
+   SCROLLBAR – QUIET & PREMIUM
+   =============================== */
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 6px;
 }
 ::-webkit-scrollbar-thumb {
-  background: hsl(var(--primary) / 0.3);
+  background: hsl(var(--primary) / 0.25);
   border-radius: 6px;
 }
 
-/* Selection */
+/* ===============================
+   SELECTION
+   =============================== */
 ::selection {
-  background: hsl(var(--accent) / 0.3);
+  background: hsl(var(--accent) / 0.25);
   color: hsl(var(--primary));
 }
